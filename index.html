@@ -1631,12 +1631,12 @@ function genererQuestions() {
   const VRAIS = WINES.filter(w => !w.domaine.includes("exemple"));
   const A_VALIDER = new Set(["hirsch-bv", "margalit-paradigma-2022", "delas-haute-pierre-2022", "pinzutu-2023", "golan-eliad-2023", "golan-ruach-2022"]);
   const PAYS_PIEGES = uniq([...VRAIS.map(w => w.pays), "France", "Espagne", "Italie", "Israël", "Portugal", "Argentine", "Chili", "Afrique du Sud"]);
-  const COUL_NOM = { blanc: "Blanc", rouge: "Rouge", rose: "Rosé", orange: "Orange", bulles: "Champagne" };
+  const COUL_NOM = { blanc: "Blanc", rouge: "Rouge", rose: "Rosé", orange: "Orange", bulles: "Effervescent" };
   const regionsCarte = uniq([...VRAIS.map(w => w.region), ...REGIONS_FR]).filter(Boolean);
   VRAIS.forEach(w => {
     const nom = `notre ${w.nom}${w.domaine ? " (" + w.domaine.replace(/\s*\(.*?\)/g, "") + ")" : ""}`;
     if (w.pays) addN("facile", "Notre carte", `De quel pays vient ${nom} ?`, w.pays, pick(PAYS_PIEGES.filter(p => p !== w.pays), 3), `${w.nom} : ${w.region ? w.region + ", " : ""}${w.pays}.`);
-    addN("facile", "Notre carte", `De quelle couleur est ${nom} ?`, COUL_NOM[w.couleur], pick(Object.values(COUL_NOM).filter(c => c !== COUL_NOM[w.couleur]), 3), `${w.nom} est un vin ${COUL_NOM[w.couleur].toLowerCase()}.`);
+    if (w.couleur !== "bulles") addN("facile", "Notre carte", `De quelle couleur est ${nom} ?`, COUL_NOM[w.couleur], pick(Object.values(COUL_NOM).filter(c => c !== COUL_NOM[w.couleur]), 3), `${w.nom} est un vin ${COUL_NOM[w.couleur].toLowerCase()}.`);
     if (w.region) addN("connais", "Notre carte", `De quelle région vient ${nom} ?`, w.region, pick(regionsCarte.filter(r => r !== w.region && !proches(w.region).has(r)), 3), `${w.nom} : ${w.region}, ${w.pays}.`);
     const st = style(w.style);
     if (st) addN("connais", "Notre carte", `Dans quelle catégorie avons-nous rangé ${nom} ?`, st.nom, stylesDe(w.couleur).filter(s => s.id !== w.style).map(s => s.nom), `Sur notre carte, ${w.nom} est dans « ${st.nom} » : ${st.accroche.toLowerCase()}.`);
@@ -2905,7 +2905,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-24-j";
+const WB_BUILD = "2026-11-24-k";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
