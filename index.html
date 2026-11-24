@@ -2818,5 +2818,22 @@ window.VIGNERON_STOP = () => { paused = true; };
   setTimeout(() => document.body.appendChild(box), 1500);
 })();
 </script>
+<script>
+/* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
+const WB_BUILD = "2026-11-24-a";
+(function(){
+  function verifier(){
+    fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
+      const m = t.match(/WB_BUILD = "([^"]+)"/);
+      if (m && m[1] !== WB_BUILD) {
+        let deja = null; try { deja = sessionStorage.getItem("wb_reload"); } catch {}
+        if (deja !== m[1]) { try { sessionStorage.setItem("wb_reload", m[1]); } catch {} location.replace(location.pathname + "?v=" + encodeURIComponent(m[1]) + location.hash); }
+      }
+    }).catch(() => {});
+  }
+  verifier();
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") verifier(); });
+})();
+</script>
 </body>
 </html>
