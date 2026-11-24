@@ -468,13 +468,98 @@ html, body { overflow-x: hidden; overflow-x: clip; max-width: 100%; }
 #seek::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--gold); }
 #seek::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--gold); margin-top: -7px; border: 0; }
 #seek::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--gold); border: 0; }
+
+/* Hébreu : sens de lecture et polices */
+[dir="rtl"] body { --display: "Frank Ruhl Libre", "Lora", Georgia, serif; --body: "Heebo", "Work Sans", Arial, sans-serif; }
+[dir="rtl"] body * { letter-spacing: normal !important; }
+[dir="rtl"] .stage-wrap, [dir="rtl"] .lecteur { direction: ltr; }
+[dir="rtl"] .retour svg, [dir="rtl"] .back svg { transform: scaleX(-1); }
+.langue { border: 1px solid var(--gold-soft); background: transparent; color: var(--gold); border-radius: 999px; padding: 6px 11px; font: 500 .74rem var(--body); cursor: pointer; white-space: nowrap; }
+.langue:hover { background: var(--gold); color: var(--bg); }
+.top-in { gap: 10px; }
+body[data-page="accueil"] .langue { position: fixed; top: calc(14px + env(safe-area-inset-top)); inset-inline-end: 16px; z-index: 40; background: var(--surface); }
+body[data-page="accueil"] .top { display: block !important; position: static; border: 0; background: none; height: 0; }
+body[data-page="accueil"] .top .brand, body[data-page="accueil"] .top .nav, body[data-page="accueil"] .top #resto-mobile { display: none; }
 </style>
+<script id="i18n">
+/* ===== Langue : français / hébreu (24/11/2026) ===== */
+(function(){
+  let L = "fr"; try { L = localStorage.getItem("wb_lang") || "fr"; } catch {}
+  window.WB_LANG = L;
+  const HE = {"→": "←", "←": "→", "Accueil": "דף הבית", "La carte": "רשימת היינות", "Fabrication": "ייצור", "Quiz": "חידון", "Restaurant": "מסעדה", "Vin rouge": "יין אדום", "Vin blanc": "יין לבן", "Vin orange": "יין כתום", "Vin rosé": "יין רוזה", "Vin effervescent": "יין מבעבע", "Vin doux": "יין מתוק", "Champagne": "שמפניה", "VIN": "יין", "Oui, je le fais vieillir en fût": "כן, אני מיישן אותו בחבית", "Non, je le garde jeune": "לא, אני משאיר אותו צעיר", "Pause": "השהיה", "Lecture": "הפעלה", "Prêt": "מוכן", "Appuyez sur lecture pour suivre le vigneron, du raisin à la bouteille.": "לחצו על הפעלה כדי ללוות את הכורם, מהענב ועד הבקבוק.", "Cueillir": "קטיף", "Cuve": "מיכל", "Fermenter": "תסיסה", "Presser": "סחיטה", "Vieillir ?": "יישון?", "Bouteille": "בקבוק", "Au revoir": "להתראות", "Quelques heures": "כמה שעות", "Macérer": "השריה", "1re fermentation": "תסיסה ראשונה", "2e fermentation": "תסיסה שנייה", "Cuve fermée": "מיכל סגור", "Remuage": "Remuage (סיבוב הבקבוקים)", "Dégorgement": "Dégorgement (הוצאת המשקע)", "Bouchon": "פקק", "Navigation principale": "ניווט ראשי", "Changer de restaurant": "החלפת מסעדה", "Navigation": "ניווט", "Choisissez le vin": "בחרו את היין", "Animation : un vigneron fabrique du vin": "אנימציה: כורם מכין יין", "Lancer l'animation": "הפעלת האנימציה", "Position dans l'animation": "מיקום באנימציה", "Choisissez une couleur": "בחרו צבע", "Blancs": "לבנים", "Rouges": "אדומים", "Rosés": "רוזה", "Orange": "כתומים", "Bulles": "מבעבעים", "Blanc": "לבן", "Rouge": "אדום", "Rosé": "רוזה", "Couleurs": "צבעים", "Des vins faits à partir du jus de raisin, presque toujours sans les peaux. Ils vont du très vif et salin au riche et beurré.": "יינות שעשויים ממיץ הענבים, כמעט תמיד בלי הקליפות. הם נעים בין יינות חדים ומלוחים מאוד לבין יינות עשירים וחמאתיים.", "Le jus fermente avec les peaux, qui donnent la couleur et les tanins. Ils vont du rouge léger qu'on peut rafraîchir au rouge puissant de garde.": "המיץ תוסס יחד עם הקליפות, שנותנות את הצבע ואת הטאנינים. הם נעים בין אדום קליל שאפשר להגיש מקורר לבין אדום עוצמתי שמתאים ליישון.", "Des raisins noirs dont le jus reste très peu de temps au contact des peaux : juste assez pour prendre une couleur pâle.": "ענבים שחורים שהמיץ שלהם נשאר זמן קצר מאוד במגע עם הקליפות: בדיוק מספיק כדי לקבל צבע בהיר.", "Des raisins blancs vinifiés comme des rouges, avec leurs peaux pendant des jours ou des mois. Ils prennent une couleur ambrée et un peu de tanin.": "ענבים לבנים שמיוצרים כמו יין אדום, עם הקליפות, במשך ימים או חודשים. הם מקבלים צבע ענברי וקצת טאנינים.", "Des vins à bulles : le champagne, qui vient de la région Champagne, et tous les autres vins effervescents du monde.": "יינות עם בועות: השמפניה, שמגיעה מחבל שמפאן, וכל שאר היינות המבעבעים בעולם.", "Un blanc se sert frais, entre 8 et 12 °C. Plus le blanc est riche et complexe, moins on le sert froid.": "יין לבן מגישים קר, בין 8 ל-12 מעלות. ככל שהלבן עשיר ומורכב יותר, מגישים אותו פחות קר.", "Les rouges légers se servent vers 14 °C, les rouges puissants entre 16 et 18 °C. Jamais à « température de la pièce » d'un restaurant chaud.": "אדומים קלילים מגישים בסביבות 14 מעלות, אדומים עוצמתיים בין 16 ל-18 מעלות. אף פעם לא ב«טמפרטורת החדר» של מסעדה חמה.", "Le rosé se sert bien frais, entre 8 et 10 °C. La couleur ne dit rien du sucre : un rosé très pâle peut être très sec.": "רוזה מגישים קר היטב, בין 8 ל-10 מעלות. הצבע לא אומר כלום על הסוכר: רוזה בהיר מאוד יכול להיות יבש מאוד.", "Un vin orange n'est pas fait avec des oranges. Il se sert entre 12 et 14 °C, comme un blanc de caractère.": "יין כתום לא עשוי מתפוזים. מגישים אותו בין 12 ל-14 מעלות, כמו יין לבן עם אופי.", "Servir entre 6 et 9 °C. On ouvre sans faire sauter le bouchon : le bouchon doit soupirer, pas exploser.": "מגישים בין 6 ל-9 מעלות. פותחים בלי להעיף את הפקק: הפקק צריך להיאנח, לא להתפוצץ.", "Aucun vin": "אין יינות", "Ces bouteilles seront rangées dans une catégorie dès que leurs infos seront confirmées.": "הבקבוקים האלה ישובצו בקטגוריה ברגע שהמידע עליהם יאושר.", "Photo": "תמונה", "à venir": "בקרוב", "Fiche en cours de vérification": "הדף בבדיקה", "Revenir à la page précédente": "חזרה לעמוד הקודם", "Retour": "חזרה", "Filtres": "מסננים", "Tout effacer": "ניקוי הכול", "Catégorie": "קטגוריה", "Composition": "הרכב", "Monocépage": "זן יחיד", "Assemblage": "בלנד", "Sans sulfites ajoutés": "ללא תוספת סולפיטים", "Cépages": "זני ענבים", "Voir les vins": "הצגת היינות", "Minéral et vif": "מינרלי וחד", "Floral et léger": "פרחוני וקליל", "Aromatique et présent": "ארומטי ונוכח", "Rond et gras": "עגול ושמנמן", "Léger et gourmand": "קליל וכיפי", "Élégant et racé": "אלגנטי ואציל", "Puissant et sérieux": "עוצמתי ורציני", "Champagnes": "שמפניות", "Effervescents": "מבעבעים", "Vins effervescents": "יינות מבעבעים", "Les bulles de la région Champagne, en France.": "הבועות של חבל שמפאן, בצרפת.", "Toutes les autres bulles du monde.": "כל שאר הבועות בעולם.", "Faciles": "קלים", "Fruités": "פירותיים", "Plus complexes": "מורכבים יותר", "Avancés": "למתקדמים", "Vins faciles": "יינות קלים", "Ronds et accessibles, ils plaisent à toute la table.": "עגולים ונגישים, הם מוצאים חן בעיני כל השולחן.", "Vins fruités": "יינות פירותיים", "Le fruit et la fraîcheur au premier plan.": "הפרי והרעננות בחזית.", "Vins plus complexes": "יינות מורכבים יותר", "De la matière, de la structure, plusieurs couches d'arômes.": "גוף, מבנה וכמה שכבות של ארומות.", "Vins pour les avancés": "יינות למתקדמים", "Grands terroirs et styles singuliers.": "Grands terroirs (אזורי גידול יוצאי דופן) וסגנונות ייחודיים.", "Comment on fait le vin": "איך מכינים יין", "Comment on fait le vin blanc": "איך מכינים יין לבן", "Comment on fait le vin rouge": "איך מכינים יין אדום", "Comment on fait le rosé": "איך מכינים רוזה", "Comment on fait le vin orange": "איך מכינים יין כתום", "Comment on fait les bulles": "איך מכינים בועות", "Rechercher un vin": "חיפוש יין", "Rechercher": "חיפוש", "Effacer": "מחיקה", "Aucun vin de cette catégorie à la carte pour le moment.": "כרגע אין ברשימה יינות מהקטגוריה הזאת.", "Évaluation": "מבחן", "Le quiz": "החידון", "Facile": "קל", "Couleurs des vins et des cépages, nos bouteilles": "צבעי היינות והזנים, הבקבוקים שלנו", "Je m'y connais": "אני מבין ביין", "Cépages, régions et notre carte": "זנים, אזורים והרשימה שלנו", "Je suis un boss": "אני בוס", "Appellations, vins du monde, pièges": "Appellations (אזורי ייצור מוגדרים), יינות מהעולם, מלכודות", "Comprendre": "להבין", "Choisissez un vin, puis suivez le vigneron, du raisin à la bouteille.": "בחרו יין, ואז לכו בעקבות הכורם, מהענב ועד הבקבוק.", "Pour aller plus loin": "להעמקה", "Les étapes en détail": "השלבים בפירוט", "Domaine": "יקב", "Pays": "מדינה", "Vignoble": "אזור", "Année": "שנת בציר", "Cépage": "זן ענבים", "Le goût": "הטעם", "Le verre": "כוס", "La bouteille": "בקבוק", "En savoir plus": "לדעת עוד", "Température": "טמפרטורה", "Carafe": "קראף", "Garde": "פוטנציאל יישון", "Vignes": "הגפנים", "Vinification": "ייצור היין", "Élevage": "יישון", "Alcool": "אלכוהול", "Robe": "צבע", "Nez": "ארומה", "Bouche": "בפה", "Sources :": "מקורות:", "Sans année": "ללא שנת בציר", "À définir à la dégustation.": "ייקבע בטעימה.", "à compléter": "להשלמה", "Léger": "קליל", "Puissant": "עוצמתי", "Sec": "יבש", "Doux": "מתוק", "Fermer": "סגירה", "Installer Wine Book": "התקנת Wine Book", "Voir les résultats de l'équipe": "תוצאות הצוות", "Nouveau quiz": "חידון חדש", "Réviser la carte": "חזרה על רשימת היינות", "À revoir": "לחזור על זה", "Question suivante": "השאלה הבאה", "Voir mon score": "התוצאה שלי", "Bonne réponse.": "תשובה נכונה.", "Pas tout à fait.": "לא בדיוק.", "La bonne réponse :": "התשובה הנכונה:", "Progression": "התקדמות", "Un sans-faute. Bravo.": "בלי טעויות. כל הכבוד.", "Excellent travail.": "עבודה מצוינת.", "C'est bien. Encore un peu de révision.": "טוב מאוד. עוד קצת חזרה.", "Un bon début : relisez les fiches et réessayez.": "התחלה טובה: קראו שוב את הדפים ונסו שוב.", "Prenez le temps de relire les pages, puis refaites un quiz.": "קחו זמן לקרוא שוב את הדפים, ואז עשו חידון נוסף.", "Fin. Appuyez sur lecture pour revoir l'animation, ou choisissez une autre couleur.": "סוף. לחצו על הפעלה כדי לראות שוב את האנימציה, או בחרו צבע אחר.", "Le vin est prêt à être servi à table.": "היין מוכן להגשה לשולחן.", "Merci, au revoir !": "תודה, להתראות!", "France": "צרפת", "Espagne": "ספרד", "Israël": "ישראל", "Italie": "איטליה", "Slovénie": "סלובניה", "Portugal": "פורטוגל", "Grèce": "יוון", "Hongrie": "הונגריה", "Allemagne": "גרמניה", "Autriche": "אוסטריה", "Argentine": "ארגנטינה", "Chili": "צ'ילה", "Afrique du Sud": "דרום אפריקה", "Géorgie": "גאורגיה"};
+  const CEP = {"Chardonnay": "שרדונה", "Sauvignon Blanc": "סוביניון בלאן", "Sauvignon blanc": "סוביניון בלאן", "Pinot Noir": "פינו נואר", "Pinot noir": "פינו נואר", "Pinot Meunier": "פינו מונייה", "Meunier": "מונייה", "Pinot Gris": "פינו גרי", "Pinot gris": "פינו גרי", "Pinot Grigio": "פינו גריג'ו", "Cabernet Sauvignon": "קברנה סוביניון", "Cabernet Franc": "קברנה פרנק", "Merlot": "מרלו", "Petit Verdot": "פטי ורדו", "Syrah": "סירה", "Grenache": "גרנאש", "Grenache blanc": "גרנאש בלאן", "Garnacha": "גרנאצ'ה", "Mourvèdre": "מורבדר", "Tempranillo": "טמפרניו", "Graciano": "גרסיאנו", "Mazuelo": "מסואלו", "Viura": "ויורה", "Gamay": "גאמה", "Sciaccarello": "סקיאקרלו", "Tinta de Toro": "טינטה דה טורו", "Tinta Fina": "טינטה פינה", "Dabouki": "דבוקי", "Cinsault": "סנסו", "Rolle": "רול", "Melon de Bourgogne": "מלון דה בורגון", "Roussanne": "רוסאן", "Viognier": "ויונייה", "Rkatsiteli": "רקציטלי", "Riesling": "ריסלינג", "Chenin Blanc": "שנן בלאן", "Muscat": "מוסקט", "Carignan": "קריניאן", "Malbec": "מלבק", "Sangiovese": "סנג'ובזה", "Nebbiolo": "נביולו", "Zinfandel": "זינפנדל", "Gewurztraminer": "גוורצטרמינר", "Marsanne": "מרסאן", "Sémillon": "סמיון", "Carricante": "קריקנטה", "Assyrtiko": "אסירטיקו", "Furmint": "פורמינט", "Palomino": "פלומינו", "Grüner Veltliner": "גרינר ולטלינר", "Albariño": "אלבריניו", "Vaccarèse": "וקארז"};
+  Object.assign(HE, CEP);
+  const LONGS = Object.keys(HE).filter(k => k.length >= 24).sort((a, b) => b.length - a.length);
+  const nb = n => n === 1 ? "יין אחד" : n + " יינות";
+  const PATS = [
+    [/^(\d+) vins?$/, m => nb(+m[1])],
+    [/^(\d+) vins? pas encore classés?$/, m => nb(+m[1]) + " שעוד לא סווגו"],
+    [/^(\d+) mois$/, m => +m[1] === 1 ? "חודש אחד" : m[1] + " חודשים"],
+    [/^Question (\d+) sur (\d+)$/, m => "שאלה " + m[1] + " מתוך " + m[2]],
+    [/^Étape (\d+)$/, m => "שלב " + m[1]],
+    [/^Prêt · (.+)$/, m => "מוכן · " + tr(m[1])],
+    [/^(\d+) %$/, m => m[0]],
+    [/^(\d+(?:,\d+)?) °C$/, m => m[1] + " מעלות"],
+    [/^(.+) →$/, m => tr(m[1]) + " ←"],
+    [/^← (.+)$/, m => "→ " + tr(m[1])],
+    [/^›$/, () => "‹"]
+  ];
+  function tr(s) {
+    if (L !== "he" || s == null) return s;
+    const t = String(s);
+    const k = t.trim();
+    if (!k) return t;
+    if (Object.prototype.hasOwnProperty.call(HE, k)) return t.replace(k, HE[k]);
+    for (const [re, f] of PATS) { const m = k.match(re); if (m) return t.replace(k, f(m)); }
+    if (k.includes(" · ")) { const parts = k.split(" · "); const out = parts.map(p => tr(p)); if (out.some((p, i) => p !== parts[i])) return t.replace(k, out.join(" · ")); }
+    let r = k, ch = false;
+    for (const l of LONGS) if (r.includes(l)) { r = r.split(l).join(HE[l]); ch = true; }
+    return ch ? t.replace(k, r) : t;
+  }
+  window.TR = tr;
+  window.setLang = l => { try { localStorage.setItem("wb_lang", l); } catch {} location.reload(); };
+  document.addEventListener("DOMContentLoaded", () => { const b = document.getElementById("langue"); if (b) b.textContent = L === "he" ? "Français" : "עברית"; });
+  if (L !== "he") return;
+  document.documentElement.lang = "he"; document.documentElement.dir = "rtl";
+  const ecrit = new WeakMap();
+  function txt(n) {
+    const v = n.nodeValue;
+    if (ecrit.get(n) === v) return;
+    const p = n.parentElement; if (!p || p.closest("script,style,[data-notr]")) return;
+    const w = tr(v);
+    if (w !== v) n.nodeValue = w;
+    ecrit.set(n, w);
+  }
+  function attrs(e) {
+    for (const a of ["aria-label", "placeholder", "title", "alt"]) { const v = e.getAttribute && e.getAttribute(a); if (v) { const w = tr(v); if (w !== v) e.setAttribute(a, w); } }
+  }
+  function tree(root) {
+    if (root.nodeType === 3) return txt(root);
+    if (root.nodeType !== 1 || root.closest("script,style,[data-notr]")) return;
+    attrs(root);
+    root.querySelectorAll("[aria-label],[placeholder],[title],[alt]").forEach(attrs);
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let n;
+    while ((n = w.nextNode())) txt(n);
+  }
+  new MutationObserver(ms => {
+    for (const m of ms) {
+      if (m.type === "characterData") txt(m.target);
+      else if (m.type === "attributes") attrs(m.target);
+      else m.addedNodes.forEach(tree);
+    }
+  }).observe(document.documentElement, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["aria-label", "placeholder", "title"] });
+  const lk = document.createElement("link"); lk.rel = "stylesheet";
+  lk.href = "https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500&family=Heebo:wght@300;400;500&display=swap";
+  document.head.appendChild(lk);
+})();
+</script>
 </head>
 <body>
 <header class="top"><div class="top-in">
   <a class="brand" href="#accueil"><b>Wine Book</b><span>Trigger · Wine Shop</span></a>
   <nav class="nav" id="nav" aria-label="Navigation principale"></nav>
   <span id="resto-mobile" class="mobile-only"></span>
+  <button class="langue" id="langue" data-notr onclick="setLang(WB_LANG === 'he' ? 'fr' : 'he')" aria-label="Langue / שפה"><span data-l="fr">עברית</span></button>
 </div></header>
 <main id="app"></main>
 <nav class="tabbar" id="tabbar" aria-label="Navigation"></nav>
@@ -1845,7 +1930,7 @@ function pageCouleur(id) {
   return `<div class="recherche" id="recherche"><div class="barre-haut"><nav class="crumb"><a href="#carte">${esc(resto(RESTO).nom)}</a><span>›</span><span>${c.nom}</span></nav>${rechercheHTML(ws)}</div>${filtresHTML(ws)}</div>
   <header class="page-head" style="--c:${cvar(id)}"><span class="bar"></span><p class="eyebrow">La carte · ${c.court}</p><h1>${c.nom}</h1></header>
   <div id="res-recherche"></div>
-  <div id="cats-zone"><p class="lead intro-couleur">${c.intro} ${c.aSavoir}</p><div class="cats">${stylesDe(id).map((s, i) => { const n = ws.filter(w => w.style === s.id).length; return `<a class="cat ${n ? "" : "vide"}" href="#${id}-${s.id}"><h3>${s.nom}</h3><p dir="auto">${s.accroche}${/[\u0590-\u05FF]/.test(s.accroche) ? "" : "."}</p><span class="n">${nb(n)}</span></a>`; }).join("")}</div>
+  <div id="cats-zone"><p class="lead intro-couleur">${c.intro} ${c.aSavoir}</p><div class="cats">${stylesDe(id).map((s, i) => { const n = ws.filter(w => w.style === s.id).length; return `<a class="cat ${n ? "" : "vide"}" href="#${id}-${s.id}"><h3>${s.nom}</h3><p dir="auto"${WB_LANG === "he" && /[\u0590-\u05FF]/.test(s.accroche) ? ' hidden' : ""}>${s.accroche}${/[\u0590-\u05FF]/.test(s.accroche) ? "" : "."}</p><span class="n">${nb(n)}</span></a>`; }).join("")}</div>
   ${(() => { const nc = ws.filter(w => !style(w.style)); return nc.length ? `<section class="section"><p class="eyebrow">${nb(nc.length)} pas encore classé${nc.length > 1 ? "s" : ""}</p><p class="lead">Ces bouteilles seront rangées dans une catégorie dès que leurs infos seront confirmées.</p><div class="wines">${nc.map(wineRow).join("")}</div></section>` : ""; })()}</div>
   <section class="section fab-couleur"><p class="eyebrow">Fabrication</p><h2>Comment on fait ${({ blanc: "le vin blanc", rouge: "le vin rouge", rose: "le rosé", orange: "le vin orange", bulles: "les bulles" })[id] || "le vin"}</h2><div id="atelier-place"></div></section>`;
 }
@@ -2318,7 +2403,7 @@ function placeBottle(r = BOT.r) { BOT.r = r; S($("bottle"), { transform: `transl
 /* Bulle : texte sur plusieurs lignes, taille adaptée */
 let BULLE_ID = 0;
 function bubbleSet(text) {
-  BULLE_ID++;
+  BULLE_ID++; text = window.TR ? TR(text) : text;
   const mots = String(text).split(" "), lignes = []; let l = "";
   for (const m of mots) { if ((l + " " + m).trim().length > 21 && l) { lignes.push(l); l = m; } else l = (l + " " + m).trim(); }
   if (l) lignes.push(l);
@@ -2890,7 +2975,7 @@ window.VIGNERON_STOP = () => { paused = true; };
   let prompt = null;
   const box = document.createElement("div"); box.className = "install"; box.setAttribute("role", "dialog"); box.setAttribute("aria-label", "Installer Wine Book");
   const fermer = () => { box.remove(); try { localStorage.setItem("wb_install_vu", "1"); } catch {} };
-  const texte = ios
+  const texte = WB_LANG === "he" ? (ios ? "הקישו על <b style='display:inline;font:inherit;font-weight:500'>שיתוף</b> בתחתית המסך, ואז על <b style='display:inline;font:inherit;font-weight:500'>הוספה למסך הבית</b>." : "פתחו את התפריט ⋮ של הדפדפן, ואז <b style='display:inline;font:inherit;font-weight:500'>התקנת האפליקציה</b> או <b style='display:inline;font:inherit;font-weight:500'>הוספה למסך הבית</b>.") : ios
     ? "Touchez <b style='display:inline;font:inherit;font-weight:500'>Partager</b> en bas de l'écran, puis <b style='display:inline;font:inherit;font-weight:500'>Sur l'écran d'accueil</b>."
     : "Ouvrez le menu ⋮ du navigateur, puis <b style='display:inline;font:inherit;font-weight:500'>Installer l'application</b> ou <b style='display:inline;font:inherit;font-weight:500'>Ajouter à l'écran d'accueil</b>.";
   box.innerHTML = `<img src="apple-touch-icon.png" alt=""><div><b>Installer Wine Book</b><p>${texte}</p></div><button class="x" aria-label="Fermer">×</button>`;
@@ -2905,7 +2990,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-24-k";
+const WB_BUILD = "2026-11-24-m";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
