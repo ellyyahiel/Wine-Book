@@ -2018,11 +2018,10 @@ function renderQuiz() {
     const prenom = store.get("vin_prenom", "");
     box.innerHTML = `<header class="section center"><p class="eyebrow">Évaluation${RESTO ? " · " + esc(resto(RESTO).nom) : ""}</p><h1>Le quiz</h1>
       <p class="lead">Dix questions tirées au hasard. Choisissez votre niveau.</p></header>
-      <form class="section" id="startf"><div class="field"><label for="prenom">Votre prénom</label><input id="prenom" autocomplete="given-name" required maxlength="40" value="${esc(prenom)}"></div>
-      <div class="niveaux">${NIVEAUX.map((n, k) => `<button class="niveau" type="submit" value="${n.id}"><span class="dots" aria-hidden="true">${[0, 1, 2].map(d => `<i class="${d <= k ? "on" : ""}"></i>`).join("")}</span><span><b>${n.nom}</b><small>${n.sous}</small></span><i class="go" aria-hidden="true">→</i></button>`).join("")}</div>
-      <p class="saved">Votre score est transmis à la sommelière.</p></form>
+      <form class="section" id="startf">
+      <div class="niveaux">${NIVEAUX.map((n, k) => `<button class="niveau" type="submit" value="${n.id}"><span class="dots" aria-hidden="true">${[0, 1, 2].map(d => `<i class="${d <= k ? "on" : ""}"></i>`).join("")}</span><span><b>${n.nom}</b><small>${n.sous}</small></span><i class="go" aria-hidden="true">→</i></button>`).join("")}</div></form>
       ${IS_OWNER ? `<p class="saved"><a href="#resultats">Voir les résultats de l'équipe</a></p>` : ""}`;
-    $("#startf").onsubmit = e => { e.preventDefault(); const p = $("#prenom").value.trim(); if (!p) { $("#prenom").focus(); return; } const niv = (e.submitter && e.submitter.value) || "facile"; store.set("vin_prenom", p); QZ = { phase: "q", list: tirerDix(niv), i: 0, rep: [], saved: null, prenom: p, niv }; renderQuiz(); };
+    $("#startf").onsubmit = e => { e.preventDefault(); const p = ""; const niv = (e.submitter && e.submitter.value) || "facile"; QZ = { phase: "q", list: tirerDix(niv), i: 0, rep: [], saved: null, prenom: p, niv }; renderQuiz(); };
     return;
   }
   if (QZ.phase === "q") {
@@ -2042,8 +2041,7 @@ function renderQuiz() {
   const score = QZ.rep.filter(r => r.ok).length;
   const msg = score === 10 ? "Un sans-faute. Bravo." : score >= 8 ? "Excellent travail." : score >= 6 ? "C'est bien. Encore un peu de révision." : score >= 4 ? "Un bon début : relisez les fiches et réessayez." : "Prenez le temps de relire les pages, puis refaites un quiz.";
   const erreurs = QZ.list.map((q, k) => ({ q, r: QZ.rep[k] })).filter(x => !x.r.ok);
-  box.innerHTML = `<div class="score"><p class="eyebrow">${esc(QZ.prenom)} · ${esc((NIVEAUX.find(n => n.id === QZ.niv) || NIVEAUX[0]).nom)}</p><p class="big">${score}<span style="color:var(--faint)">/10</span></p><p class="lead">${msg}</p></div>
-    <p class="saved" id="saved">${QZ.saved === null ? "Enregistrement du score…" : QZ.saved}</p>
+  box.innerHTML = `<div class="score"><p class="eyebrow">${esc((NIVEAUX.find(n => n.id === QZ.niv) || NIVEAUX[0]).nom)}</p><p class="big">${score}<span style="color:var(--faint)">/10</span></p><p class="lead">${msg}</p></div>
     <div class="row" style="justify-content:center"><button class="btn" id="again">Nouveau quiz</button><a class="btn ghost" href="#carte">Réviser la carte</a></div>
     ${erreurs.length ? `<section class="section"><h2>À revoir</h2><div class="review">${erreurs.map(({ q, r }) => `<div><b style="font-family:var(--display);font-size:1.25rem;font-weight:500">${esc(q.q)}</b><span style="color:var(--ko)">Votre réponse : ${esc(r.choix)}</span><span class="good-a">Bonne réponse : ${esc(q.a)}</span><span style="color:var(--muted)">${esc(q.x)}</span></div>`).join("")}</div></section>` : ""}`;
   $("#again").onclick = () => { QZ = { phase: "q", list: tirerDix(QZ.niv), i: 0, rep: [], saved: null, prenom: QZ.prenom, niv: QZ.niv }; renderQuiz(); window.scrollTo({ top: 0 }); };
@@ -2056,7 +2054,7 @@ async function enregistrer() {
   const essai = { d: new Date().toISOString(), s: score, n: 10, r: RESTO || "", l: QZ.niv || "" };
   const hist = store.get("vin_hist", []); hist.push(essai); store.set("vin_hist", hist.slice(-50));
   const fin = t => { QZ.saved = t; const el = $("#saved"); if (el) el.textContent = t; };
-  if (!DB || !UID) return fin("Score gardé sur cet appareil seulement. Montrez cet écran à la sommelière.");
+  return;
   try {
     const ref = DB.collection("resultats").doc(UID);
     const snap = await ref.get();
@@ -2828,7 +2826,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-24-g";
+const WB_BUILD = "2026-11-24-h";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
