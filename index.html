@@ -454,6 +454,20 @@ html, body { overflow-x: hidden; overflow-x: clip; max-width: 100%; }
 @media (min-width: 641px) { .steps li { flex-basis: calc((100% - 36px) / 7); width: auto; } }
 .vbar, .vbar .row { justify-content: center; text-align: center; }
 .caption { text-align: center; }
+
+/* Lecteur type YouTube (24/11) */
+.bigplay { position: absolute; left: 50%; top: 50%; width: 74px; height: 74px; margin: -37px 0 0 -37px; border-radius: 50%; border: 0; background: rgba(42,37,32,.78); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 24px rgba(0,0,0,.25); padding: 0; z-index: 3; }
+.bigplay svg { width: 38px; height: 38px; margin-left: 4px; }
+.bigplay.off { display: none; }
+.lecteur { display: flex; align-items: center; gap: 12px; padding: 10px 2px 4px; }
+.lecteur .lp { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--ink); display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer; }
+.lecteur .lp svg { width: 20px; height: 20px; }
+#seek { flex: 1; min-width: 0; -webkit-appearance: none; appearance: none; height: 28px; background: transparent; touch-action: none; }
+#seek::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(to right, var(--gold) var(--pct, 0%), var(--line) var(--pct, 0%)); }
+#seek::-moz-range-track { height: 4px; border-radius: 2px; background: var(--line); }
+#seek::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--gold); }
+#seek::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--gold); margin-top: -7px; border: 0; }
+#seek::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--gold); border: 0; }
 </style>
 </head>
 <body>
@@ -609,11 +623,14 @@ html, body { overflow-x: hidden; overflow-x: clip; max-width: 100%; }
       <button class="btn" id="choixOui">Oui, je le fais vieillir en fût</button>
       <button class="btn ghost" id="choixNon">Non, je le garde jeune</button>
     </div>
+    <button class="bigplay" id="bigplay" aria-label="Lancer l'animation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></button>
   </div>
-  <div class="vbar">
-    <div class="row"><button class="btn" id="play">Lancer l'animation</button><button class="btn ghost" id="pause" disabled>Pause</button></div>
+  <div class="lecteur">
+    <button class="lp" id="lp" aria-label="Lecture"><svg viewBox="0 0 24 24" aria-hidden="true"><path id="lpIcon" d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></button>
+    <input type="range" id="seek" min="0" max="1000" step="1" value="0" aria-label="Position dans l'animation">
   </div>
-  <div class="caption" aria-live="polite"><span class="eyebrow" id="capStep">Prêt</span><p id="capText">Lancez l'animation pour suivre le vigneron, du raisin à la bouteille.</p></div>
+  <div hidden style="display:none"><button id="play"></button><button id="pause"></button></div>
+  <div class="caption" aria-live="polite"><span class="eyebrow" id="capStep">Prêt</span><p id="capText">Appuyez sur lecture pour suivre le vigneron, du raisin à la bouteille.</p></div>
   <ol class="steps" id="steps"></ol>
   <div class="photo" hidden style="display:none">
     <img id="photoPreview" alt="Visage du vigneron" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-36 -36 72 72'%3E%3Ccircle r='34' fill='%23f0c49e'/%3E%3C/svg%3E">
@@ -2178,6 +2195,7 @@ function frame(ts) {
     if (p >= 1) { tweens.splice(tweens.indexOf(tw), 1); tw.r(); }
   }
   draw();
+  if (!SEEKING && !GLISSE) majBarre();
   requestAnimationFrame(frame);
 }
 
@@ -2503,8 +2521,9 @@ async function decision(oui, non, texteOui, texteNon, idx) {
   const choix = await new Promise(res => {
     let fait = false;
     const fin = v => { if (fait) return; fait = true; $("choice").classList.remove("on"); res(v); };
-    $("choixOui").onclick = () => fin(true); $("choixNon").onclick = () => fin(false);
-    tween(9000, () => {}).then(() => fin(true));
+    $("choixOui").onclick = () => { CHOIX_MEMO = true; fin(true); }; $("choixNon").onclick = () => { CHOIX_MEMO = false; fin(false); };
+    if (SEEKING) { fin(CHOIX_MEMO); return; }
+    tween(9000, () => {}).then(() => fin(CHOIX_MEMO));
   }); ok();
   await tween(250, p => $("bubble").setAttribute("opacity", 1 - p)); ok();
   await armTo(0, 300, "B"); ok();
@@ -2558,8 +2577,8 @@ async function auRevoir(idx) {
   await tween(250, p => $("bubble").setAttribute("opacity", 1 - p)); ok();
   M.armB = 0;
   await walk(WORLD + 120, 4); ok();
-  $("capText").textContent = "Fin. Appuyez sur « Rejouer » pour revoir l'animation, ou choisissez une autre couleur.";
-  $("pause").disabled = true;
+  $("capText").textContent = "Fin. Appuyez sur lecture pour revoir l'animation, ou choisissez une autre couleur.";
+  $("pause").disabled = true; FINI = true; majLecteur();
 }
 
 /* ---------- Les scénarios ---------- */
@@ -2752,21 +2771,78 @@ const FILMS = {
 };
 async function film() {
   CUR = ++RUN;
-  resetScene();
+  resetScene(); T0 = T; FINI = false; DEMARRE = true;
   $("play").textContent = "Rejouer"; $("pause").disabled = false;
+  const moi = CUR;
   await FILMS[V]();
+  if (moi === RUN) { FINI = true; majLecteur(); }
 }
 
 /* ---------- Contrôles ---------- */
 $("play").onclick = () => film().catch(() => {});
+/* ---------- Lecteur : play / pause / barre ---------- */
+let T0 = 0, FINI = false, DEMARRE = false, SEEKING = false, GLISSE = false, CHOIX_MEMO = true;
+const DUREES = { rouge: 61500, blanc: 58600, rose: 61900, orange: 63400, effervescent: 49100, champagne: 56400 };
+function dureeV() { return DUREES[V] || 60000; }
+function majBarre() {
+  const el = $("seek"); if (!el) return;
+  const pct = DEMARRE ? (FINI ? 1 : Math.min(1, (T - T0) / dureeV())) : 0;
+  el.value = Math.round(pct * 1000); el.style.setProperty("--pct", (pct * 100).toFixed(1) + "%");
+}
+function majLecteur() {
+  const enLecture = DEMARRE && !FINI && !paused;
+  $("lpIcon").setAttribute("d", enLecture ? "M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" : "M8 5.5v13l11-6.5z");
+  $("lp").setAttribute("aria-label", enLecture ? "Pause" : "Lecture");
+  $("bigplay").classList.toggle("off", enLecture || (DEMARRE && !FINI));
+  majBarre();
+}
+function lecture() {
+  if (!DEMARRE || FINI) { paused = false; film().catch(() => {}); }
+  else paused = false;
+  majLecteur();
+}
+function pauseLecture() { if (DEMARRE && !FINI) { paused = true; majLecteur(); } }
+$("bigplay").onclick = lecture;
+document.querySelector(".stage-wrap").addEventListener("click", e => { if (e.target.closest("button")) return; if (DEMARRE && !FINI) (paused ? lecture() : pauseLecture()); });
+$("lp").onclick = () => (DEMARRE && !FINI && !paused) ? pauseLecture() : lecture();
+const cedeMain = () => new Promise(r => { const c = new MessageChannel(); c.port1.onmessage = () => r(); c.port2.postMessage(0); });
+function avancerHorloge(dt) {
+  T += dt;
+  for (const tw of tweens.slice()) {
+    const p = Math.min(1, Math.max(0, (T - tw.s) / tw.d));
+    tw.fn(tw.e(p), p);
+    if (p >= 1) { tweens.splice(tweens.indexOf(tw), 1); tw.r(); }
+  }
+}
+let SAUT = 0;
+async function sauter(frac) {
+  const id = ++SAUT;
+  const cible = frac * dureeV();
+  const etaitPause = paused || !DEMARRE;
+  SEEKING = true; paused = true;
+  if (!DEMARRE || FINI || cible < T - T0) { film().catch(() => {}); paused = true; await cedeMain(); }
+  let n = 0;
+  while (id === SAUT && !FINI && T - T0 < cible) {
+    avancerHorloge(Math.min(120, cible - (T - T0)));
+    for (let k = 0; k < 6; k++) await null;
+    if (++n % 40 === 0) await cedeMain();
+  }
+  if (id !== SAUT) return;
+  SEEKING = false; paused = etaitPause; CAM_SNAP = true; draw(); majLecteur();
+}
+const seek = $("seek");
+seek.addEventListener("pointerdown", () => { GLISSE = true; });
+seek.addEventListener("input", () => { seek.style.setProperty("--pct", (seek.value / 10) + "%"); sauter(seek.value / 1000); });
+const finGlisse = () => { GLISSE = false; };
+seek.addEventListener("pointerup", finGlisse); seek.addEventListener("change", finGlisse); seek.addEventListener("pointercancel", finGlisse);
 $("pause").onclick = () => { paused = !paused; $("pause").textContent = paused ? "Reprendre" : "Pause"; };
 
 document.querySelectorAll("#versions button").forEach(b => b.onclick = () => {
-  V = b.dataset.v; RUN++; resetScene();
+  V = b.dataset.v; RUN++; SAUT++; SEEKING = false; resetScene(); DEMARRE = false; FINI = false; majLecteur();
   if (window.setFabTab) window.setFabTab({ rouge: "rouge", blanc: "blanc", rose: "rose", orange: "orange", effervescent: "bulles", champagne: "bulles" }[V]);
   $("play").textContent = "Lancer l'animation"; $("pause").disabled = true;
   $("capStep").textContent = "Prêt · " + VERSIONS[V].nom;
-  $("capText").textContent = "Lancez l'animation pour suivre le vigneron, du raisin à la bouteille.";
+  $("capText").textContent = "Appuyez sur lecture pour suivre le vigneron, du raisin à la bouteille.";
 });
 
 /* ---------- Photo du vigneron ---------- */
@@ -2826,7 +2902,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-24-h";
+const WB_BUILD = "2026-11-24-i";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
