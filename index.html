@@ -841,14 +841,14 @@ const WINES = [
     sources: [["Domaine du Castel – nos vins", "https://www.castel.co.il/%D7%99%D7%99%D7%A0%D7%95%D7%AA-2022/#castel"]] },
 
   { id: "vina-arana-gr-2017", nom: "Viña Arana Gran Reserva", domaine: "La Rioja Alta S.A.", appellation: "DOCa Rioja", region: "Rioja", pays: "Espagne",
-    restos: ["trigger", "wineshop"], couleur: "rouge", style: null, cepages: ["Tempranillo", "Graciano"], assemblage: "Tempranillo 95 %, Graciano 5 %", millesime: "2017", degre: "14 %", prixVerre: null, prixBouteille: null,
+    restos: ["trigger", "wineshop"], couleur: "rouge", style: null, cepages: ["Tempranillo", "Graciano"], assemblage: "Tempranillo 95 %, Graciano 5 %", millesime: "2017", degre: "14 %", prixVerre: null, prixBouteille: null, photo: "photos/vina-arana-gr-2017.jpg",
     vinif: "Raisins transportés en petites caisses réfrigérées, tri optique. Fermentation alcoolique de 16 jours à 27 °C, puis malolactique naturelle.",
     elevage: "3 ans en barriques de chêne américain fabriquées par la maison (âge moyen 4,5 ans), soutirées à l'ancienne tous les 6 mois. Mise en bouteille en janvier 2022.",
     robe: "Grenat intense, brillant, liseré rouge cerise.", nez: "Framboise, mûre, groseille, puis cèdre, clou de girofle, vanille, moka et caramel.", bouche: "Très équilibrée, acidité fraîche et élégante, tanins soyeux, finale longue.",
     profil: null, temp: "16 à 18 °C", carafe: "", garde: "Longue évolution en bouteille selon la maison.", accords: [],
     pitch: "Un Gran Reserva classique de Rioja, trois ans en fût américain : fruits rouges, épices douces et grande finesse.", motsCles: ["fruits rouges", "épices douces", "élégant"], verif: "complete",
     anecdote: "La Rioja Alta fabrique elle-même ses barriques. Le Tempranillo vient des vignes de Rodezno, sur sols calcaires ; le Graciano, de Fuenmayor, sur galets.",
-    sources: [["Fiche technique La Rioja Alta – Viña Arana GR 2017", "https://riojalta.com/media/I_Vi%C3%B1a_Arana_GR_2017.pdf"]] },
+    sources: [["Fiche technique La Rioja Alta – Viña Arana GR 2017", "https://riojalta.com/media/I_Vi%C3%B1a_Arana_GR_2017.pdf"], ["Contre-étiquette de la bouteille", ""]] },
 
   { id: "casa-rojo-tintafina", nom: "Tintafina", domaine: "Casa Rojo", appellation: "DO Ribera del Duero", region: "Ribera del Duero", pays: "Espagne",
     restos: ["trigger", "wineshop"], couleur: "rouge", style: null, cepages: ["Tempranillo"], assemblage: "Tempranillo (Tinta Fina)", millesime: "", degre: "", prixVerre: null, prixBouteille: null,
@@ -2902,7 +2902,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-24-u";
+const WB_BUILD = "2026-11-24-v";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
