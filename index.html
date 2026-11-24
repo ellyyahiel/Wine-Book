@@ -1949,14 +1949,7 @@ PAGES.fabrication = () => `
   <section class="section"><p class="eyebrow">Pour aller plus loin</p><h2>Les étapes en détail</h2>
     <div class="tabs" role="tablist">${Object.keys(FAB).map(t => `<button class="tab" role="tab" data-t="${t}" aria-selected="${FAB_T === t}">${FAB[t].nom}</button>`).join("")}</div>
     <div id="etapes"></div></section>
-  <section class="section"><h2>Les différences en un coup d'œil</h2><div class="scroll-x"><table class="compare">
-    <thead><tr><th>Vin</th><th>Raisins</th><th>Contact avec les peaux</th><th>Ce qui le rend unique</th></tr></thead><tbody>
-    <tr><td>Rouge</td><td>Noirs</td><td>Plusieurs jours à semaines</td><td>Couleur et tanins viennent des peaux</td></tr>
-    <tr><td>Blanc</td><td>Blancs (ou noirs)</td><td>Aucun : pressurage direct</td><td>Fraîcheur, fruit, pas de tanins</td></tr>
-    <tr><td>Rosé</td><td>Noirs</td><td>Quelques heures</td><td>Juste un peu de couleur</td></tr>
-    <tr><td>Orange</td><td>Blancs</td><td>Jours à mois</td><td>Un blanc vinifié comme un rouge</td></tr>
-    <tr><td>Champagne</td><td>Blancs et noirs</td><td>Aucun (sauf certains rosés)</td><td>Seconde fermentation en bouteille</td></tr>
-    </tbody></table></div></section>`;
+  `;
 window.setFabTab = k => { FAB_T = k; document.querySelectorAll(".tab[data-t]").forEach(x => x.setAttribute("aria-selected", x.dataset.t === k)); if ($("#etapes")) renderEtapes(); };
 function renderEtapes() {
   const f = FAB[FAB_T];
@@ -2820,7 +2813,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-24-b";
+const WB_BUILD = "2026-11-24-c";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
