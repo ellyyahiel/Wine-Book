@@ -475,6 +475,7 @@ html, body { overflow-x: hidden; overflow-x: clip; max-width: 100%; }
 [dir="rtl"] .stage-wrap, [dir="rtl"] .lecteur { direction: ltr; }
 [dir="rtl"] .retour svg, [dir="rtl"] .back svg { transform: scaleX(-1); }
 [dir="rtl"] .retour { left: auto; right: 12px; }
+[dir="rtl"] .big { text-align: right; }
 [dir="rtl"] .retour:hover span { transform: translateX(2px); }
 @media (min-width: 1160px) { [dir="rtl"] .retour { left: auto; right: 0; } }
 .langue { width: 36px; height: 36px; flex: 0 0 auto; border: 1px solid var(--gold-soft); background: transparent; color: var(--gold); border-radius: 50%; padding: 0; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -2915,7 +2916,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-24-z";
+const WB_BUILD = "2026-11-24-za";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
