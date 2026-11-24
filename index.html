@@ -1034,7 +1034,7 @@ const WINES = [
     sources: [["Comptoir des Millésimes (partenaire du domaine)", "https://www.comptoirdesmillesimes.com/domaine-denizot/les-bouffants-sancerre-blanc-2023-domaine-denizot.html"], ["Cream Wine (importateur USA)", "https://creamwine.com/brand.php?id=1738"], ["Étiquette et contre-étiquette de la bouteille", ""]] },
 
   { id: "stekar-sivi-pinot", nom: "Sivi Pinot", domaine: "Štekar", appellation: "Goriška Brda", region: "Goriška Brda", pays: "Slovénie",
-    restos: ["trigger"], couleur: "orange", style: "fruite", cepages: ["Pinot Gris"], assemblage: "Pinot Gris (Sivi Pinot en slovène, Pinot Grigio en italien)", millesime: "", degre: "", prixVerre: null, prixBouteille: null,
+    restos: ["trigger", "wineshop"], couleur: "orange", style: "fruite", cepages: ["Pinot Gris"], assemblage: "Pinot Gris (Sivi Pinot en slovène, Pinot Grigio en italien)", millesime: "", degre: "", prixVerre: null, prixBouteille: null,
     photo: "photos/stekar-sivi-pinot.jpg",
     vinif: "Raisins égrappés puis macérés avec leurs peaux pendant deux semaines en cuve inox : c'est ce qui lui donne sa couleur et en fait un vin orange (style « ramato »).", elevage: "Environ 11 mois en grands fûts de chêne français usagés (20 hectolitres).",
     robe: "", nez: "", bouche: "", profil: null, temp: "", carafe: "", garde: "", accords: [],
@@ -2988,7 +2988,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-k";
+const WB_BUILD = "2026-11-25-l";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
