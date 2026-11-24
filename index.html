@@ -238,7 +238,7 @@ input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .explain { display: grid; gap: 6px; padding: 18px 20px; background: var(--surface); border-left: 1px solid var(--gold); }
 .explain b.ok { color: var(--ok); font-weight: 400; } .explain b.ko { color: var(--ko); font-weight: 400; }
 .score { display: grid; gap: 10px; text-align: center; padding: 30px 0; }
-.score .big { font-family: var(--display); font-size: clamp(5rem, 16vw, 8rem); line-height: 1; font-variant-numeric: tabular-nums; }
+.score .big { display: block; width: auto; text-align: center; direction: ltr; unicode-bidi: isolate; background: none; box-shadow: none; padding: 0; border-radius: 0; cursor: default; font-family: var(--display); font-size: clamp(5rem, 16vw, 8rem); line-height: 1; font-variant-numeric: tabular-nums; }
 .score .lead { font-family: var(--display); font-style: normal; font-size: 1.4rem; margin: 0 auto; }
 .review { display: grid; gap: 0; border-top: 1px solid var(--line); }
 .review > div { display: grid; gap: 4px; padding: 18px 0; border-bottom: 1px solid var(--line); }
@@ -475,7 +475,7 @@ html, body { overflow-x: hidden; overflow-x: clip; max-width: 100%; }
 [dir="rtl"] .stage-wrap, [dir="rtl"] .lecteur { direction: ltr; }
 [dir="rtl"] .retour svg, [dir="rtl"] .back svg { transform: scaleX(-1); }
 [dir="rtl"] .retour { left: auto; right: 12px; }
-[dir="rtl"] .big { text-align: right; }
+[dir="rtl"] .choose .big { text-align: right; }
 [dir="rtl"] .retour:hover span { transform: translateX(2px); }
 @media (min-width: 1160px) { [dir="rtl"] .retour { left: auto; right: 0; } }
 .langue { width: 36px; height: 36px; flex: 0 0 auto; border: 1px solid var(--gold-soft); background: transparent; color: var(--gold); border-radius: 50%; padding: 0; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -2916,7 +2916,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-24-za";
+const WB_BUILD = "2026-11-24-zb";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
