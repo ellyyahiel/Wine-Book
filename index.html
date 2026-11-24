@@ -1725,7 +1725,7 @@ function bouteilleSVG(w, mini) {
 }
 
 /* ---------- Composants ---------- */
-const exempleNote = () => carte().some(w => w.domaine.includes("exemple")) ? `<p class="note">Les fiches marquées <b>« Fiche d'exemple »</b> sont provisoires : elles sont remplacées au fur et à mesure par les vraies bouteilles.</p>` : "";
+const exempleNote = () => "";
 const wineRow = w => `<a class="wine" href="#vin-${w.id}" style="--c:${cvar(w.couleur)}"><span class="thumb">${bouteilleSVG(w, true)}</span><span class="in">
   <span class="meta">${[w.domaine.replace(/\s*\(.*?\)/g, ""), w.pays, w.millesime].filter(x => !vide(x)).map(esc).join(" · ")}</span>
   <h3>${esc(w.nom)}</h3><span class="pitch">${vide(w.pitch) ? "Fiche en cours de vérification" : esc(w.pitch)}</span>
