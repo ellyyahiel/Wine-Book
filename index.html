@@ -475,6 +475,7 @@ html, body { overflow-x: hidden; overflow-x: clip; max-width: 100%; }
 [dir="rtl"] .stage-wrap, [dir="rtl"] .lecteur { direction: ltr; }
 [dir="rtl"] .retour svg, [dir="rtl"] .back svg { transform: scaleX(-1); }
 [dir="rtl"] .retour { left: auto; right: 12px; }
+[dir="rtl"] .detail .tab { font-size: calc(.74rem + 2px); }
 [dir="rtl"] .choose .big { text-align: right; }
 [dir="rtl"] .retour:hover span { transform: translateX(2px); }
 @media (min-width: 1160px) { [dir="rtl"] .retour { left: auto; right: 0; } }
@@ -2916,7 +2917,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-24-zb";
+const WB_BUILD = "2026-11-24-zc";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
