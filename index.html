@@ -598,7 +598,7 @@ h1 { letter-spacing: -.015em; }
   </div>
   <div class="caption" aria-live="polite"><span class="eyebrow" id="capStep">Prêt</span><p id="capText">Lancez l'animation pour suivre le vigneron, du raisin à la bouteille.</p></div>
   <ol class="steps" id="steps"></ol>
-  <div class="photo">
+  <div class="photo" hidden style="display:none">
     <img id="photoPreview" alt="Visage du vigneron" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-36 -36 72 72'%3E%3Ccircle r='34' fill='%23f0c49e'/%3E%3C/svg%3E">
     <span style="flex:1;min-width:180px">Le visage du vigneron. Une autre photo reste seulement sur cet appareil.</span>
     <label class="btn ghost" for="file">Changer la photo</label><input type="file" id="file" accept="image/*"><button class="btn ghost" id="reset">Photo d'origine</button>
@@ -2156,7 +2156,7 @@ const S = (el, attr) => Object.entries(attr).forEach(([k, v]) => el.setAttribute
 const GRAPE = "#4a2160", JUICE = "#7a1a46", WINE = "#7a1430";
 
 /* ---------- Horloge pausable ---------- */
-let T = 0, last = null, paused = false, speed = 1.6, tweens = [];
+let T = 0, last = null, paused = false, speed = 2.6, tweens = [];
 const ease = p => p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
 const lin = p => p;
 function tween(dur, fn, e = ease) { return new Promise(r => tweens.push({ s: T, d: dur, fn, e, r })); }
@@ -2783,7 +2783,7 @@ $("file").onchange = e => {
   img.src = URL.createObjectURL(f);
 };
 $("reset").onclick = () => { setFace(PHOTO_EQUIPE); try { localStorage.removeItem("vigneron_photo"); } catch {} };
-let photoPerso = null; try { photoPerso = localStorage.getItem("vigneron_photo"); } catch {}
+let photoPerso = null; try { localStorage.removeItem("vigneron_photo"); } catch {}
 setFace(photoPerso || PHOTO_EQUIPE);
 
 resetScene();
@@ -2820,7 +2820,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-24-a";
+const WB_BUILD = "2026-11-24-b";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
