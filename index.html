@@ -595,7 +595,6 @@ h1 { letter-spacing: -.015em; }
   </div>
   <div class="vbar">
     <div class="row"><button class="btn" id="play">Lancer l'animation</button><button class="btn ghost" id="pause" disabled>Pause</button></div>
-    <div class="row"><label for="vitesse" class="eyebrow">Vitesse</label><select id="vitesse"><option value="0.7">Lente</option><option value="1" selected>Normale</option><option value="1.5">Rapide</option></select></div>
   </div>
   <div class="caption" aria-live="polite"><span class="eyebrow" id="capStep">Prêt</span><p id="capText">Lancez l'animation pour suivre le vigneron, du raisin à la bouteille.</p></div>
   <ol class="steps" id="steps"></ol>
@@ -2157,7 +2156,7 @@ const S = (el, attr) => Object.entries(attr).forEach(([k, v]) => el.setAttribute
 const GRAPE = "#4a2160", JUICE = "#7a1a46", WINE = "#7a1430";
 
 /* ---------- Horloge pausable ---------- */
-let T = 0, last = null, paused = false, speed = 1, tweens = [];
+let T = 0, last = null, paused = false, speed = 1.6, tweens = [];
 const ease = p => p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
 const lin = p => p;
 function tween(dur, fn, e = ease) { return new Promise(r => tweens.push({ s: T, d: dur, fn, e, r })); }
@@ -2755,7 +2754,7 @@ async function film() {
 /* ---------- Contrôles ---------- */
 $("play").onclick = () => film().catch(() => {});
 $("pause").onclick = () => { paused = !paused; $("pause").textContent = paused ? "Reprendre" : "Pause"; };
-$("vitesse").onchange = e => { speed = +e.target.value; };
+
 document.querySelectorAll("#versions button").forEach(b => b.onclick = () => {
   V = b.dataset.v; RUN++; resetScene();
   if (window.setFabTab) window.setFabTab({ rouge: "rouge", blanc: "blanc", rose: "rose", orange: "orange", effervescent: "bulles", champagne: "bulles" }[V]);
