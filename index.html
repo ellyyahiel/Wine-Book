@@ -336,6 +336,19 @@ body[data-page="accueil"] main { max-width: none; padding: 0 !important; gap: 0;
 .plus[open] summary::after { content: " –"; }
 .plus .histoire { font-family: var(--display); font-style: normal; font-size: 1.2rem; line-height: 1.4; padding: 10px 0 16px; }
 .plus .src { font-size: .78rem; color: var(--muted); padding-top: 14px; }
+/* « En savoir plus » : histoire dans une carte marsala clair, infos en lignes séparées */
+.plus .histoire { background: color-mix(in srgb, var(--gold-soft) 45%, var(--bg)); border-radius: 16px; padding: 16px 18px; margin: 10px 0 18px; font-size: 1.12rem; line-height: 1.5; }
+.plus .histoire::before { content: "L'histoire"; display: block; font-family: var(--sans, inherit); font-size: .7rem; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+[dir="rtl"] .plus { text-align: right; }
+[dir="rtl"] .plus .histoire { font-family: Heebo, sans-serif; font-size: 1.08rem; line-height: 1.6; }
+[dir="rtl"] .plus .histoire::before { content: "הסיפור"; font-family: Heebo, sans-serif; font-size: .85rem; letter-spacing: 0; font-weight: 600; }
+.plus .taste { gap: 0; }
+.plus .taste div { grid-template-columns: 1fr; gap: 3px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.plus .taste dt { padding-top: 0; }
+[dir="rtl"] .plus .taste dt { letter-spacing: 0; font-size: .85rem; }
+[dir="rtl"] .plus .taste dd { font-size: 1rem; line-height: 1.55; }
+wb-n.lw { display: inline; white-space: nowrap; }
+.lw bdi { unicode-bidi: isolate; }
 
 /* ---- Bouton retour : juste le rond, dans la marge du haut ---- */
 main { position: relative; }
@@ -2194,12 +2207,29 @@ function ajouterPhon() {
   if (WB_LANG !== "he") return;
   document.querySelectorAll(".facts .fact b").forEach(b => {
     const n = b.nextElementSibling; if (n && n.classList.contains("phon")) n.remove();
-    const ph = phonDe(b.innerText); if (!ph) return;
+    const ph = phonDe(b.textContent); if (!ph) return;
     const sm = document.createElement("small"); sm.className = "phon"; sm.setAttribute("translate", "no"); sm.textContent = ph; b.after(sm);
   });
 }
 window.addEventListener("hashchange", () => setTimeout(ajouterPhon, 60));
 window.addEventListener("load", () => setTimeout(ajouterPhon, 120));
+/* Hébreu : mots en caractères latins jamais coupés et bien placés, « 14 % » → « 14% » */
+function proteger(el) {
+  const re = /([\u0590-\u05FF]{1,2}-)?([A-Za-zÀ-ÿŠšŒœ][A-Za-zÀ-ÿŠšŒœ0-9'’]*(?:[ \-][A-Za-zÀ-ÿŠšŒœ][A-Za-zÀ-ÿŠšŒœ0-9'’]*)*)/g;
+  const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); const ns = []; while (w.nextNode()) ns.push(w.currentNode);
+  ns.forEach(n => {
+    if (n.parentElement.closest(".lw")) return;
+    let t = n.nodeValue.replace(/(\d+(?:[.,]\d+)?) %/g, "$1%");
+    if (!/[A-Za-zÀ-ÿ]/.test(t)) { if (t !== n.nodeValue) n.nodeValue = t; return; }
+    const f = document.createDocumentFragment(); let last = 0;
+    t.replace(re, (m, pre, lat, i) => { f.append(t.slice(last, i)); const sp = document.createElement("wb-n"); sp.className = "lw"; if (pre) sp.append(pre); const b = document.createElement("bdi"); b.textContent = lat; sp.append(b); f.append(sp); last = i + m.length; });
+    f.append(t.slice(last)); n.replaceWith(f);
+  });
+}
+function hebreuFiche() { if (WB_LANG !== "he") return; ajouterPhon(); document.querySelectorAll(".plus .histoire, .plus dd, .facts .fact b").forEach(proteger); }
+window.addEventListener("hashchange", () => setTimeout(hebreuFiche, 150));
+window.addEventListener("load", () => setTimeout(hebreuFiche, 250));
+
 
 route();
 
@@ -2949,7 +2979,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-f";
+const WB_BUILD = "2026-11-25-h";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
