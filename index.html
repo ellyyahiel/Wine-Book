@@ -437,6 +437,23 @@ h1 { letter-spacing: -.015em; }
 .install .x { border: 0; background: none; font-size: 1.4rem; color: var(--faint); cursor: pointer; padding: 4px 6px; align-self: start; }
 .install .ok { grid-column: 1 / -1; justify-self: end; }
 @media (min-width: 821px) { .install { left: auto; right: 24px; bottom: 24px; width: 380px; } }
+
+/* 24/11 : centrage et défilement horizontal seul */
+html, body { overflow-x: hidden; overflow-x: clip; max-width: 100%; }
+.stage-wrap svg { overflow: hidden; display: block; max-width: 100%; }
+.tabs { overflow-y: hidden; overscroll-behavior: contain; touch-action: pan-x; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.tabs::-webkit-scrollbar { display: none; }
+.tabs > .tab { flex: 0 0 auto; white-space: nowrap; }
+.tabs > :first-child { margin-left: auto; }
+.tabs > :last-child { margin-right: auto; }
+.section.detail { text-align: center; }
+.section.detail #etapes { text-align: left; }
+.section.detail .intro-fab, .section.detail #etapes > p:first-child { text-align: center; }
+.steps { display: flex !important; flex-wrap: wrap; justify-content: center; gap: 6px; background: none; border: 0; }
+.steps li { flex: 0 0 calc((100% - 18px) / 4); width: calc((100% - 18px) / 4); min-width: 0; border: 1px solid var(--line); box-sizing: border-box; letter-spacing: .04em; font-size: .56rem; padding: 10px 2px; overflow-wrap: normal; word-break: keep-all; }
+@media (min-width: 641px) { .steps li { flex-basis: calc((100% - 36px) / 7); width: auto; } }
+.vbar, .vbar .row { justify-content: center; text-align: center; }
+.caption { text-align: center; }
 </style>
 </head>
 <body>
@@ -1946,7 +1963,7 @@ let FAB_T = "rouge";
 PAGES.fabrication = () => `
   <header class="section center"><p class="eyebrow">Comprendre</p><h1>Comment on fait le vin</h1><p class="lead">Choisissez un vin, puis suivez le vigneron, du raisin à la bouteille.</p></header>
   <div id="atelier-place"></div>
-  <section class="section"><p class="eyebrow">Pour aller plus loin</p><h2>Les étapes en détail</h2>
+  <section class="section detail"><p class="eyebrow">Pour aller plus loin</p><h2>Les étapes en détail</h2>
     <div class="tabs" role="tablist">${Object.keys(FAB).map(t => `<button class="tab" role="tab" data-t="${t}" aria-selected="${FAB_T === t}">${FAB[t].nom}</button>`).join("")}</div>
     <div id="etapes"></div></section>
   `;
@@ -2813,7 +2830,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-24-c";
+const WB_BUILD = "2026-11-24-e";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
