@@ -1026,15 +1026,13 @@ const FAB = {
   rouge: { nom: "Vin rouge", teinte: "#7a1430",
     resume: "Raisins noirs + peaux pendant la fermentation = couleur et tanins.",
     etapes: [
-      { scene: "vendange", titre: "Les vendanges", texte: "Les raisins noirs sont cueillis à maturité, à la main ou à la machine. Le vigneron goûte les baies pour choisir le bon jour : assez de sucre, mais encore de la fraîcheur.", cle: "La qualité du vin commence au moment de la cueillette." },
+      { scene: "vendange", titre: "Les vendanges", texte: "Les raisins noirs sont cueillis à maturité, à la main ou à la machine.", cle: "" },
       { scene: "egrappage", titre: "Égrappage et foulage", texte: "On sépare les grains de la rafle (la partie en bois de la grappe), puis on éclate légèrement les grains pour libérer le jus.", cle: "La rafle peut donner des tanins verts : on l'enlève le plus souvent." },
-      { scene: "maceration", titre: "Cuvaison : la macération", texte: "Le jus d'un raisin noir est presque toujours blanc ! Toute la couleur est dans la peau. Le jus reste donc avec les peaux plusieurs jours ou semaines. Les peaux remontent et forment le « chapeau ». On l'arrose (remontage) ou on l'enfonce (pigeage).", cle: "Plus la macération est longue, plus le vin est coloré et tannique." },
-      { scene: "fermentation", titre: "Fermentation alcoolique", texte: "Pendant la macération, les levures mangent le sucre du raisin et le transforment en alcool. Elles libèrent aussi du gaz carbonique, qui fait bouillonner la cuve.", cle: "Sucre + levures → alcool + gaz carbonique." },
-      { scene: "pressurage", titre: "Écoulage et pressurage", texte: "On soutire le vin liquide (le vin de goutte), puis on presse le marc (les peaux restantes) pour obtenir le vin de presse, plus tannique.", cle: "Le vigneron peut ajouter un peu de vin de presse pour donner de la structure." },
-      { scene: "malo", titre: "Fermentation malolactique", texte: "Des bactéries transforment l'acide malique (vif, comme la pomme verte) en acide lactique (doux, comme le lait). Presque tous les rouges la font.", cle: "Elle rend le vin plus souple et plus rond." },
+      { scene: "maceration", titre: "Cuvaison : la macération", texte: "Le jus d'un raisin noir est presque toujours blanc. Toute la couleur est dans la peau. Le jus reste donc avec les peaux plusieurs jours ou semaines.", cle: "Plus la macération est longue, plus le vin est coloré et tannique." },
+      { scene: "fermentation", titre: "Fermentation alcoolique", texte: "Pendant la macération, les levures mangent le sucre du raisin et le transforment en alcool. Elles libèrent aussi du gaz carbonique, qui fait bouillonner la cuve.", cle: "Sucre + levures = alcool + gaz carbonique." },
       { scene: "elevage", titre: "Élevage", texte: "Le vin repose de quelques mois à plusieurs années, en cuve, en fût de chêne ou en jarre. En fût, il gagne des arômes (vanille, toast, épices) et s'assouplit grâce à une oxygénation très lente.", cle: "Le bois est une épice : il doit accompagner le vin, pas le masquer." },
-      { scene: "assemblage", titre: "Assemblage", texte: "On mélange plusieurs cuves ou plusieurs cépages pour trouver l'équilibre. À Bordeaux, par exemple, on assemble souvent Merlot et Cabernet Sauvignon.", cle: "Assembler, c'est comme un chef qui ajuste sa recette." },
-      { scene: "bouteille", titre: "Mise en bouteille", texte: "Le vin est parfois clarifié (collage) et filtré, puis mis en bouteille et bouché. Certains continuent d'évoluer pendant des années en cave.", cle: "Un vin de garde gagne en complexité avec le temps." }
+      { scene: "assemblage", titre: "Assemblage", texte: "N'a pas lieu lors d'un monocépage ou d'un millésime. On mélange plusieurs cuves ou plusieurs cépages pour trouver l'équilibre. Par exemple, à Bordeaux, on assemble souvent Merlot et Cabernet Sauvignon.", cle: "L'assemblage, c'est comme un chef qui crée une recette." },
+      { scene: "bouteille", titre: "Mise en bouteille", texte: "Le vin est mis en bouteille. Certains peuvent alors continuer d'évoluer pendant des années en cave.", cle: "Un vin de garde gagne en complexité avec le temps." }
     ] },
   blanc: { nom: "Vin blanc", teinte: "#d9b84a",
     resume: "On presse tout de suite : le jus fermente sans les peaux.",
@@ -1970,7 +1968,7 @@ PAGES.fabrication = () => `
 window.setFabTab = k => { FAB_T = k; document.querySelectorAll(".tab[data-t]").forEach(x => x.setAttribute("aria-selected", x.dataset.t === k)); if ($("#etapes")) renderEtapes(); };
 function renderEtapes() {
   const f = FAB[FAB_T];
-  $("#etapes").innerHTML = `<p class="lead" style="padding:18px 0 4px"><b>${f.resume}</b></p><div class="etapes">${f.etapes.map((e, k) => `<div class="etape"><span class="k">${k + 1}</span><div><h3>${e.titre}</h3><p>${e.texte}</p><p class="cle">${e.cle}</p></div></div>`).join("")}</div>`;
+  $("#etapes").innerHTML = `<p class="lead" style="padding:18px 0 4px"><b>${f.resume}</b></p><div class="etapes">${f.etapes.map((e, k) => `<div class="etape"><span class="k">${k + 1}</span><div><h3>${e.titre}</h3><p>${e.texte}</p>${e.cle ? `<p class="cle">${e.cle}</p>` : ""}</div></div>`).join("")}</div>`;
 }
 
 /* ---------- Quiz ---------- */
@@ -2830,7 +2828,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-24-e";
+const WB_BUILD = "2026-11-24-f";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
