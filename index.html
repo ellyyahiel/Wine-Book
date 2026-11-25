@@ -2438,7 +2438,7 @@ async function bouillonne(ms, opts = {}) { // bulles de fermentation dans la cuv
 }
 
 /* ---------- Bulle « levures » au-dessus de la cuve pendant la fermentation ---------- */
-const LEV_IMG = 8000, LEV_MS = 300 + 3 * LEV_IMG + 300;
+const LEV_IMG = 8000, LEV_FIN = LEV_IMG - 3900, LEV_MS = 300 + 2 * LEV_IMG + LEV_FIN + 300; // fin raccourcie de 1,5 s (vitesse 2,6)
 const LEV_TXT = [
   "Les levures, présentes sur les peaux ou ajoutées, se mettent à manger le sucre des raisins.",
   "Après avoir mangé le sucre des raisins, elles rejettent de l'alcool et du gaz carbonique.",
@@ -2502,7 +2502,7 @@ async function levures() {
   // 3 · elles meurent et tombent au fond
   levTexte(LEV_TXT[2], txt);
   lev.forEach(L => { const d = levureSVG(true); obj.replaceChild(d, L.g); L.g = d; L.y0 = L.y; L.x0 = L.x; });
-  await tween(LEV_IMG, (p, raw) => {
+  await tween(LEV_FIN, (p, raw) => {
     const q = Math.min(1, raw * 1.5);
     lev.forEach((L, i) => { L.x = L.x0 + ((36 + i * 27) - L.x0) * q; L.y = L.y0 + (214 - L.y0) * q; place(L, 0, (i % 2 ? 1 : -1) * 70 * q); });
     S(G.querySelector("#levLies"), { y: 228 - 14 * q, height: 14 * q });
@@ -3027,7 +3027,7 @@ async function film() {
 $("play").onclick = () => film().catch(() => {});
 /* ---------- Lecteur : play / pause / barre ---------- */
 let T0 = 0, FINI = false, DEMARRE = false, SEEKING = false, GLISSE = false, CHOIX_MEMO = true;
-const DUREES = { rouge: 105150, blanc: 81850, rose: 85550, orange: 99450, effervescent: 73150, champagne: 80250 };
+const DUREES = { rouge: 101250, blanc: 77950, rose: 81650, orange: 95550, effervescent: 69250, champagne: 76350 };
 function dureeV() { return DUREES[V] || 60000; }
 function majBarre() {
   const el = $("seek"); if (!el) return;
@@ -3147,7 +3147,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-zh";
+const WB_BUILD = "2026-11-25-zi";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
