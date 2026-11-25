@@ -2384,7 +2384,11 @@ function parentDe(h) {
 }
 /* ---------- Routeur ---------- */
 function route() {
-  const h = (location.hash || "#accueil").slice(1) || "accueil";
+  let h = (location.hash || "#accueil").slice(1) || "accueil";
+  { // lien direct vers une question : #quiz-s8
+    const mq = h.match(/^quiz-([a-z0-9]+)$/i);
+    if (mq) { const q = QUESTIONS.find(x => x.id === mq[1]); if (q) QZ = { phase: "q", list: [{ ...q, options: shuffle([q.a, ...q.w]) }], i: 0, rep: [], saved: null, niv: q.niv, lien: true }; h = "quiz"; history.replaceState(null, "", "#quiz"); }
+  }
   // ranger l'atelier du vigneron avant de changer de page
   const at = $("#atelier"); if (at && at.parentElement.id !== "atelier-holder") $("#atelier-holder").appendChild(at);
   let html = null, m;
@@ -2420,7 +2424,7 @@ function route() {
       const b = document.querySelector(`#versions button[data-v="${versions[0]}"]`); if (b) b.click();
     }
   }
-  if (h === "quiz") { if (QZ.phase === "end") QZ.phase = "start"; renderQuiz(); }
+  if (h === "quiz") { if (QZ.phase === "end" && !QZ.lien) QZ.phase = "start"; renderQuiz(); }
   if (h === "resultats") pageResultats();
 }
 window.addEventListener("hashchange", () => { route(); window.scrollTo({ top: 0 }); });
@@ -3497,7 +3501,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-zz34";
+const WB_BUILD = "2026-11-25-zz35";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
