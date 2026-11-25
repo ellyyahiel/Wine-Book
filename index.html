@@ -2734,9 +2734,9 @@ async function bulleContenant(x, ytop, texte, duree = 4600) { // petite bulle qu
   const bo = +$("bubble").getAttribute("opacity") || 0;
   const g = document.createElementNS(NS, "g"); g.id = "bulleContenant"; S(g, { filter: "url(#cut)", opacity: 0 });
   g.innerHTML = `<rect x="${cx - W / 2}" y="${y}" width="${W}" height="${H}" rx="14" fill="#fffdf6" stroke="#22131a" stroke-width="2.2"/><path d="M${x - 14} ${y + H - 1} L${x} ${ytop - 4} L${x + 14} ${y + H - 1}" fill="#fffdf6" stroke="#22131a" stroke-width="2.2" stroke-linejoin="round"/><path d="M${x - 12} ${y + H - 1} h24" stroke="#fffdf6" stroke-width="4"/>` +
-    (he ? "" : `<text text-anchor="middle" font-family="Figtree, sans-serif" font-weight="800" font-size="17" fill="#7a1430">${L.map((l, k) => `<tspan x="${cx}" y="${y + 28 + k * 23}">${ovlEsc(l)}</tspan>`).join("")}</text>`);
+    (he ? "" : `<text text-anchor="middle" font-family="Figtree, sans-serif" font-weight="700" font-size="18" fill="#22131a">${L.map((l, k) => `<tspan x="${cx}" y="${y + 28 + k * 23}">${ovlEsc(l)}</tspan>`).join("")}</text>`);
   $("cuve").parentNode.appendChild(g);
-  if (he) ovlSet("contenant", g, { x: cx - W / 2, y, w: W, h: H }, 17, `<span style="color:#7a1430;font-weight:800">${ovlEsc(T)}</span>`);
+  if (he) ovlSet("contenant", g, { x: cx - W / 2, y, w: W, h: H }, 17, `<span style="color:#22131a;font-weight:700">${ovlEsc(T)}</span>`);
   await tween(200, p => $("bubble").setAttribute("opacity", bo * (1 - p))); ok();
   await tween(250, p => S(g, { opacity: p })); ok();
   await wait(duree); ok();
@@ -3247,7 +3247,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-zz5";
+const WB_BUILD = "2026-11-25-zz6";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
