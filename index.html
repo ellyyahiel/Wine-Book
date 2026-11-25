@@ -2346,6 +2346,7 @@ function draw() {
   S($("sun"), { cx: CAM + 520, cy: 110 });
 }
 async function walk(to, msPerPx = 5) {
+  to = Math.max(M.x, to); // jamais de marche arrière
   const from = M.x, dist = Math.abs(to - from), armF0 = M.armF, armB0 = M.armB;
   if (dist < 1) return;
   await tween(dist * msPerPx, p => {
@@ -2432,7 +2433,7 @@ function levTexte(t, el) {
   el.innerHTML = L.map((x, k) => `<tspan x="130" dy="${k ? 20 : 0}">${R}${x.replace(/&/g, "&amp;").replace(/</g, "&lt;")}${R}</tspan>`).join("");
 }
 async function levures() {
-  const vv = VERSIONS[V] || {}, x0 = (P().cuve || 470);
+  const vv = VERSIONS[V] || {}, x0 = CUVE_X();
   let G = $("levures"); if (G) G.remove();
   const k = 1.05, TX = 90, TY = 288, st = 1;
   G = document.createElementNS(NS, "g"); G.id = "levures"; S(G, { opacity: 0, transform: `translate(${x0 - TX * k},${336 - TY * k}) scale(${k})`, filter: "url(#cut)" });
@@ -2607,7 +2608,7 @@ async function panierDansCuve() {
   tomb.forEach(c => c.remove());
   await tween(700, p => setCuve(.55 * p)); ok();
   await tween(350, p => { M.holding.rot = 130 * (1 - p); }); ok();
-  await poserPanier(ECOULAGE() ? 22 : -40);
+  await poserPanier(ECOULAGE() || V === "rose" ? 22 : -40);
 }
 async function panierDansPressoir(contenu) {
   const px = P().press;
@@ -2826,7 +2827,6 @@ const FILMS = {
     await prendre($("bucket"));
     await verser(P().cuve, 345, 1600, p => setCuve(.55 * p, vv.must));
     setStep(3, "Étape 4 · La fermentation", "Les levures transforment le sucre en alcool : le jus devient du vin blanc, frais et sans tanins.");
-    await walk(P().cuve - 110); ok();
     await say("La fermentation commence !", 1600); ok();
     await Promise.all([levures(), bouillonne(LEV_MS, { to: vv.wine })]); ok();
     const fut = await decision("En fût de chêne, pour le faire vieillir", "En cuve, pour le garder jeune",
@@ -2847,7 +2847,6 @@ const FILMS = {
     setCuve(0, "#e9c7c2", 0);
     await panierDansCuve();
     setStep(2, "Étape 3 · Juste quelques heures", "Les peaux colorent le jus, mais seulement quelques heures : juste assez pour qu'il devienne rose. (En Provence, on presse souvent tout de suite, pour un rosé très pâle.)");
-    await walk(P().cuve - 110); ok();
     S($("calendar"), { transform: `translate(${P().cuve + 30},225)` });
     await tween(300, p => S($("calendar"), { opacity: p })); ok();
     for (const [h, k] of [["2 heures", .33], ["4 heures", .66], ["6 heures", 1]]) { $("calText").textContent = h; const c0 = CUVE.col; await tween(800, p => setCuve(undefined, mix(c0, mix("#e9c7c2", vv.must, k), p))); ok(); }
@@ -2859,12 +2858,12 @@ const FILMS = {
     await presser(pg, vv.juice);
     setStep(4, "Étape 5 · La fermentation", "Il remet le jus rose dans la cuve propre. Les levures transforment le sucre en alcool, au frais, pour garder les arômes de petits fruits.");
     await prendre($("bucket"));
-    await verser(P().cuve, 345, 1500, p => setCuve(.5 * p, vv.juice, 0));
-    await walk(P().cuve - 110); ok();
+    cuveDevant(); setCuve(0, vv.juice, 0);
+    await verser(CUVE_X(), 345, 1500, p => setCuve(.5 * p, vv.juice, 0));
     await say("La fermentation commence !", 1600); ok();
     await Promise.all([levures(), bouillonne(LEV_MS, { to: vv.wine })]); ok();
     await say("On le boit jeune !", 1400); ok();
-    await remplirAuRobinet(P().cuve + 80, 412, vv.wine, p => setCuve(.5 * (1 - p * .5)));
+    await remplirAuRobinet(CUVE_X() + 80, 412, vv.wine, p => setCuve(.5 * (1 - p * .5)));
     await versBouteille("Pas besoin de vieillir : il le met vite en bouteille, pour le boire jeune et frais.", 5);
     await bouchonEtAuRevoir(6);
   },
@@ -2905,7 +2904,6 @@ const FILMS = {
     setStep(2, "Étape 3 · Première fermentation", "Le jus fermente en cuve, comme un vin blanc : on obtient un vin tranquille, sans bulles.");
     await prendre($("bucket"));
     await verser(P().cuve, 345, 1500, p => setCuve(.55 * p, vv.must));
-    await walk(P().cuve - 110); ok();
     await say("La fermentation commence !", 1600); ok();
     await Promise.all([levures(), bouillonne(LEV_MS, { to: vv.wine })]); ok();
     setStep(3, "Étape 4 · La 2e fermentation en cuve fermée", "Il ajoute du sucre et des levures, puis ferme la cuve. Le gaz de la 2e fermentation ne peut pas sortir : il reste dans le vin et fait les bulles. C'est la méthode du prosecco. (Le crémant et le cava, eux, se font comme le champagne, en bouteille.)");
@@ -2940,7 +2938,6 @@ const FILMS = {
     setStep(2, "Étape 3 · Première fermentation", "Le jus fermente en cuve, comme un vin blanc : on obtient un vin tranquille, encore sans bulles.");
     await prendre($("bucket"));
     await verser(P().cuve, 345, 1500, p => setCuve(.55 * p, vv.must));
-    await walk(P().cuve - 110); ok();
     await say("La fermentation commence !", 1600); ok();
     await Promise.all([levures(), bouillonne(LEV_MS, { to: vv.wine })]); ok();
     await remplirAuRobinet(P().cuve + 80, 412, vv.wine, p => setCuve(.55 * (1 - p * .6)));
@@ -3117,7 +3114,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-zf";
+const WB_BUILD = "2026-11-25-zg";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
