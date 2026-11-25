@@ -558,6 +558,14 @@ body[data-page="accueil"] .top .brand, body[data-page="accueil"] .top .nav, body
 .ff-voir i { font-style: normal; }
 body.ff-ouvert { overflow: hidden; }
 .wines .wine[hidden] { display: none; }
+
+/* La page ne doit jamais bouger de droite à gauche (iPhone) */
+html, body { touch-action: pan-y pinch-zoom; overscroll-behavior-x: none; }
+main, header, nav, footer { max-width: 100vw; overflow-x: clip; }
+.tabs, .versions, .scroll-x, .ff-corps { touch-action: pan-x pan-y; }
+input, select, textarea { font-size: 16px !important; } /* évite le zoom automatique de l'iPhone */
+.ff-volet[hidden], .ff-voile[hidden] { display: none !important; }
+.ff-rang { margin-top: 8px; }
 </style>
 <script id="i18n">
 /* ===== Langue : français / hébreu (24/11/2026) ===== */
@@ -3401,7 +3409,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-zz19";
+const WB_BUILD = "2026-11-25-zz20";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
