@@ -412,12 +412,25 @@ h1 { letter-spacing: -.015em; }
 /* ---- Vraies photos de bouteilles : plein cadre ---- */
 .photo-vin.vraie img { border-radius: 0; border: 0; position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; object-fit: cover; filter: none; }
 .photo-vin.vraie::after { display: none; }
+/* Listes de vins : mur de bouteilles en 3 colonnes (25/11) */
+.wines { grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; gap: 18px 10px; border-top: 0; padding-top: 6px; }
+@media (min-width: 700px) { .wines { grid-template-columns: repeat(5, 1fr); } }
+.wines .wine { min-width: 0; display: flex; flex-direction: column; align-items: stretch; gap: 6px; padding: 0; border: 0; text-align: center; background: none; }
+.wines .wine:hover { background: none; }
+.wines .wine .thumb { width: 100%; height: auto; aspect-ratio: 3 / 4; border-radius: 12px; border: 0; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.wines .wine .thumb .photo-vin.mini { height: 100%; }
+.wines .wine .in { gap: 1px; }
+.wines .wine .meta, .wines .wine .pitch, .wines .wine .mots, .wines .wine .go, .wines .wine .band { display: none; }
+.wines .wine h3 { font-size: .98rem; line-height: 1.15; }
+.wines .wine .an { font-family: var(--body, inherit); font-size: .72rem; color: var(--muted); }
+
 
 
 /* ---- Recherche et filtres ---- */
 .recherche { display: grid; gap: 12px; margin: 0 0 8px; }
 .barre-haut { display: flex; align-items: center; gap: 12px; }
 .barre-haut .crumb { margin: 0; flex: none; white-space: nowrap; }
+@media (max-width: 520px) { .barre-haut { flex-wrap: wrap; } .barre-haut .champ { flex: 1 1 100%; } }
 .recherche .champ { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 6px 6px 14px; cursor: text; transition: border-color .2s, box-shadow .2s; }
 .recherche .champ:focus-within, .recherche.ouvert .champ { border-color: var(--gold-soft); box-shadow: 0 6px 22px rgba(42,37,32,.08); }
 .recherche .champ > svg { width: 18px; height: 18px; color: var(--muted); flex: none; }
@@ -1807,7 +1820,7 @@ function bouteilleSVG(w, mini) {
 const exempleNote = () => "";
 const wineRow = w => `<a class="wine" href="#vin-${w.id}" style="--c:${cvar(w.couleur)}"><span class="thumb">${bouteilleSVG(w, true)}</span><span class="in">
   <span class="meta">${[w.domaine.replace(/\s*\(.*?\)/g, ""), w.pays, w.millesime].filter(x => !vide(x)).map(esc).join(" · ")}</span>
-  <h3>${esc(w.nom)}</h3><span class="pitch">${vide(w.pitch) ? "Fiche en cours de vérification" : esc(w.pitch)}</span>
+  <h3>${esc(w.nom)}</h3>${vide(w.millesime) ? "" : `<span class="an">${esc(w.millesime)}</span>`}<span class="pitch">${vide(w.pitch) ? "Fiche en cours de vérification" : esc(w.pitch)}</span>
   ${(w.motsCles || []).length ? `<span class="mots">${w.motsCles.slice(0, 3).map(esc).join(" · ")}</span>` : ""}</span><span class="go" aria-hidden="true">→</span></a>`;
 const needResto = () => `<section class="section center"><p class="eyebrow">Avant de commencer</p><h2>Choisissez d'abord votre restaurant</h2><a class="btn" href="#accueil">Choisir</a></section>`;
 
@@ -3283,7 +3296,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-zz9";
+const WB_BUILD = "2026-11-25-zz11";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
