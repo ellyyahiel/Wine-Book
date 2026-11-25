@@ -182,6 +182,7 @@ main { max-width: 1120px; margin: 0 auto; padding: 48px 20px 80px; display: grid
 /* ---------- Fabrication ---------- */
 .atelier { border: 1px solid var(--line); padding: 14px; background: var(--surface); display: grid; gap: 14px; }
 .stage-wrap { position: relative; overflow: hidden; background: #cfe6f2; }
+.ovl { position: absolute; display: flex; align-items: center; justify-content: center; text-align: center; direction: rtl; unicode-bidi: isolate; font-family: Heebo, Figtree, sans-serif; font-weight: 700; color: #22131a; line-height: 1.22; pointer-events: none; z-index: 2; padding: 0 .3em; box-sizing: border-box; }
 svg#scene { display: block; width: 100%; height: auto; }
 .choice { position: absolute; inset: auto 0 6% 0; display: none; justify-content: center; gap: 10px; flex-wrap: wrap; padding: 0 12px; }
 .choice.on { display: flex; }
@@ -2274,6 +2275,32 @@ const PHOTO_EQUIPE = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAU
 const S = (el, attr) => Object.entries(attr).forEach(([k, v]) => el.setAttribute(k, v));
 const GRAPE = "#4a2160", JUICE = "#7a1a46", WINE = "#7a1430";
 
+
+/* Hébreu : les textes de l'animation sont affichés en HTML par-dessus le dessin.
+   Le texte SVG de certains téléphones (Safari) mélange l'ordre des mots en hébreu. */
+const OVL = {}; window.OVL = OVL;
+function ovlEsc(t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+function ovlSet(key, g, box, fs, html) {
+  let d = OVL[key] && OVL[key].div;
+  if (!d) { d = document.createElement("div"); d.className = "ovl"; d.setAttribute("dir", "rtl"); d.setAttribute("translate", "no"); $("scene").parentNode.appendChild(d); }
+  OVL[key] = { div: d, g, box, fs }; d.innerHTML = html; ovlSync();
+}
+function ovlDel(key) { if (OVL[key]) { OVL[key].div.remove(); delete OVL[key]; } }
+function ovlSync() {
+  const sc = $("scene"); if (!sc) return;
+  const R = sc.parentNode.getBoundingClientRect();
+  for (const k in OVL) {
+    const o = OVL[k];
+    if (!o.g.isConnected) { ovlDel(k); continue; }
+    const m = o.g.getScreenCTM(); if (!m) continue;
+    const p = new DOMPoint(o.box.x, o.box.y).matrixTransform(m), f = Math.hypot(m.a, m.b);
+    let op = 1; for (let e = o.g; e && e !== sc; e = e.parentNode) { const a = e.getAttribute && e.getAttribute("opacity"); if (a !== null && a !== "") op *= +a; }
+    const st = o.div.style;
+    st.left = (p.x - R.left) + "px"; st.top = (p.y - R.top) + "px";
+    st.width = (o.box.w * f) + "px"; st.height = (o.box.h * f) + "px";
+    st.fontSize = (o.fs * f) + "px"; st.opacity = op;
+  }
+}
 /* ---------- Horloge pausable ---------- */
 let T = 0, last = null, paused = false, speed = 2.6, tweens = [];
 const ease = p => p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
@@ -2344,6 +2371,7 @@ function draw() {
   CAM_SNAP = false;
   S($("scene"), { viewBox: `${CAM.toFixed(1)} ${CAM_Y} ${CAM_W} ${CAM_H}` });
   S($("sun"), { cx: CAM + 520, cy: 110 });
+  ovlSync();
 }
 async function walk(to, msPerPx = 5) {
   to = Math.max(M.x, to); // jamais de marche arrière
@@ -2429,8 +2457,8 @@ function levTexte(t, el) {
   const mots = t.split(" "), L = []; let l = "";
   for (const m of mots) { if ((l + " " + m).trim().length > (WB_LANG === "he" ? 23 : 26) && l) { L.push(l); l = m; } else l = (l + " " + m).trim(); }
   if (l) L.push(l);
-  const R = WB_LANG === "he" ? "\u200F" : "";
-  el.innerHTML = L.map((x, k) => `<tspan x="130" dy="${k ? 20 : 0}">${R}${x.replace(/&/g, "&amp;").replace(/</g, "&lt;")}${R}</tspan>`).join("");
+  if (WB_LANG === "he") { el.innerHTML = ""; ovlSet("levures", el.parentNode, { x: 16, y: 4, w: 228, h: 96 }, +el.getAttribute("font-size") || 16, L.map(ovlEsc).join("<br>")); return; }
+  el.innerHTML = L.map((x, k) => `<tspan x="130" dy="${k ? 20 : 0}">${x.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</tspan>`).join("");
 }
 async function levures() {
   const vv = VERSIONS[V] || {}, x0 = CUVE_X();
@@ -2501,8 +2529,13 @@ function bubbleSet(text) {
   S($("bubblePath"), { d: `M18,${top} h${w - 32} a14,14 0 0 1 14,14 v${h - 28} a14,14 0 0 1 -14,14 h-${w - 68} l-20,18 l4,-18 h-20 a14,14 0 0 1 -14,-14 v${-(h - 28)} a14,14 0 0 1 14,-14 z` });
   const t = $("bubbleText"); t.removeAttribute("direction");
   S(t, { "font-size": fs, x: (w + 4) / 2, y: top + 12, "font-family": he ? "Heebo, Figtree, sans-serif" : "Figtree, sans-serif" });
-  const RLM = he ? "\u200F" : "";
-  t.innerHTML = lignes.map((x, k) => `<tspan x="${(w + 4) / 2}" dy="${k ? lh : fs * 1.05}">${RLM}${x.replace(/&/g, "&amp;").replace(/</g, "&lt;")}${RLM}</tspan>`).join("");
+  if (he) {
+    t.innerHTML = "";
+    ovlSet("bulle", $("bubble"), { x: 4, y: top, w: w - 4, h: h }, fs, lignes.map(ovlEsc).join("<br>"));
+  } else {
+    ovlDel("bulle");
+    t.innerHTML = lignes.map((x, k) => `<tspan x="${(w + 4) / 2}" dy="${k ? lh : fs * 1.05}">${x.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</tspan>`).join("");
+  }
   return BULLE_ID;
 }
 /* La bulle reste affichée jusqu'à ce qu'une nouvelle phrase la remplace */
@@ -3114,7 +3147,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-zg";
+const WB_BUILD = "2026-11-25-zh";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
