@@ -591,6 +591,11 @@ input, select, textarea { font-size: 16px !important; } /* évite le zoom automa
 [dir="rtl"] .recherche .champ input { width: 5.4ch; }
 .recherche .champ input:not(:placeholder-shown) { width: 14ch; }
 @media (max-width: 520px) { .barre-haut .champ { flex: 0 1 auto; } }
+
+/* Volet des filtres : titres de groupe bien visibles + ligne entre les groupes */
+.ff-groupe { margin: 0; padding: 12px 0 14px; border-top: 1px solid #d9cfbf; }
+.ff-groupe:first-child { border-top: 0; padding-top: 4px; }
+.ff-lab { font-family: var(--display); font-weight: 600; font-size: 1.05rem; letter-spacing: 0; text-transform: none; color: var(--ink); margin: 0 0 9px; }
 </style>
 <script id="i18n">
 /* ===== Langue : français / hébreu (24/11/2026) ===== */
@@ -3443,7 +3448,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-zz22";
+const WB_BUILD = "2026-11-25-zz23";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
