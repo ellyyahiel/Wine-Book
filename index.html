@@ -441,6 +441,14 @@ h1 { letter-spacing: -.015em; }
 .fab-couleur h2 { margin: 6px 0 18px; }
 #versions[hidden], #versions button[hidden] { display: none !important; }
 .fab-couleur .versions { grid-template-columns: 1fr 1fr; }
+/* Boutons de couleur : pastilles fines sur une ligne (25/11) */
+.versions { display: flex; grid-template-columns: none; overflow-x: auto; gap: 6px; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+.versions::-webkit-scrollbar { display: none; }
+.versions button { flex: none; display: flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 999px; font-family: var(--sans, inherit); font-size: .85rem; line-height: 1.2; white-space: nowrap; }
+.versions button i { width: 10px; height: 10px; }
+@media (min-width: 700px) { .versions { grid-template-columns: none; } }
+.fab-couleur .versions { grid-template-columns: none; }
+
 .gout-phrase { font-size: 1.05rem; line-height: 1.55; color: var(--ink); }
 /* ---- Appli : bandeau d'installation + marges écran ---- */
 .top { padding-top: env(safe-area-inset-top); }
@@ -3102,7 +3110,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-za";
+const WB_BUILD = "2026-11-25-zb";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
