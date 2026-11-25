@@ -530,10 +530,13 @@ body[data-page="accueil"] .top { display: block !important; position: static; bo
 body[data-page="accueil"] .top .brand, body[data-page="accueil"] .top .nav, body[data-page="accueil"] .top #resto-mobile { display: none; }
 
 /* Filtres des pages catégorie : bouton + volet du bas */
-.ff-btn { display: inline-flex; width: max-content; align-self: flex-start; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 8px 15px; font: 500 .9rem var(--body); cursor: pointer; margin: 0 0 14px; }
+.page-cat { display: grid; gap: 14px; }
+.page-cat .page-head { gap: 8px; margin-top: 6px; }
+.page-cat .wines { padding-top: 0; }
+.ff-btn { display: inline-flex; width: max-content; align-self: flex-start; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 7px 15px; font: 500 .9rem var(--body); cursor: pointer; margin: 0; }
 .ff-btn svg { width: 17px; height: 17px; }
 .ff-btn b { background: var(--wine); color: #fff; border-radius: 999px; font-size: .72rem; padding: 1px 7px; }
-.ff-compte { margin: -4px 0 4px; }
+.ff-compte { margin: 0; }
 .ff-voile { position: fixed; inset: 0; background: rgba(42, 37, 32, .38); z-index: 60; }
 .ff-volet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 61; background: var(--surface); border-radius: 22px 22px 0 0; padding: 10px 20px calc(16px + env(safe-area-inset-bottom)); max-height: 82vh; display: flex; flex-direction: column; box-shadow: 0 -10px 30px rgba(0, 0, 0, .12); transform: translateY(100%); transition: transform .28s ease; max-width: 720px; margin: 0 auto; }
 .ff-volet.on { transform: none; }
@@ -2015,10 +2018,10 @@ const STYLE_COULEUR = {
 function pageCategorie(cid, sid) {
   const c = color(cid), s = stylesDe(cid).find(x => x.id === sid); if (!c || !s) return null; if (!RESTO) return needResto();
   const ws = carte().filter(w => w.couleur === cid && w.style === sid);
-  return `<nav class="crumb"><a href="#carte">${esc(resto(RESTO).nom)}</a><span>›</span><a href="#couleur-${cid}">${c.nom}</a><span>›</span><span>${esc(s.court)}</span></nav>
+  return `<div class="page-cat"><nav class="crumb"><a href="#carte">${esc(resto(RESTO).nom)}</a><span>›</span><a href="#couleur-${cid}">${c.nom}</a><span>›</span><span>${esc(s.court)}</span></nav>
   <header class="page-head" style="--c:${cvar(cid)}"><span class="bar"></span><p class="eyebrow">${c.nom} · ${nb(ws.length)}</p><h1>${esc(s.nom)}</h1></header>
   ${ws.length > 1 ? voletFiltresHTML(ws) : ""}
-  ${ws.length ? `<p class="eyebrow ff-compte" id="ff-compte" hidden></p><div class="wines" id="ff-mur">${ws.map(w => wineRow(w).replace('<a class="wine"', `<a data-id="${w.id}" class="wine"`)).join("")}</div><p class="empty" id="ff-vide" hidden>Aucun vin ne correspond. Retirez un filtre.</p>` : `<p class="empty">Aucun vin de cette catégorie à la carte pour le moment.</p>`}`;
+  ${ws.length ? `<p class="eyebrow ff-compte" id="ff-compte" hidden></p><div class="wines" id="ff-mur">${ws.map(w => wineRow(w).replace('<a class="wine"', `<a data-id="${w.id}" class="wine"`)).join("")}</div><p class="empty" id="ff-vide" hidden>Aucun vin ne correspond. Retirez un filtre.</p>` : `<p class="empty">Aucun vin de cette catégorie à la carte pour le moment.</p>`}</div>`;
 }
 
 /* ---------- Filtres des pages catégorie : bouton + volet du bas ---------- */
@@ -2074,6 +2077,12 @@ function initFiltresCategorie(cid, sid) {
   };
   const ouvrir = v => { volet.hidden = !v; voile.hidden = !v; document.body.classList.toggle("ff-ouvert", v); if (v) requestAnimationFrame(() => volet.classList.add("on")); else volet.classList.remove("on"); };
   btn.onclick = () => ouvrir(true);
+  // glisser le volet vers le bas = « Voir les vins »
+  { let y0 = null, dy = 0; const corps = volet.querySelector(".ff-corps");
+    volet.addEventListener("touchstart", e => { if (corps.contains(e.target) && corps.scrollTop > 0) { y0 = null; return; } y0 = e.touches[0].clientY; dy = 0; volet.style.transition = "none"; }, { passive: true });
+    volet.addEventListener("touchmove", e => { if (y0 === null) return; dy = Math.max(0, e.touches[0].clientY - y0); if (dy > 0) { volet.style.transform = `translateY(${dy}px)`; if (e.cancelable) e.preventDefault(); } }, { passive: false });
+    volet.addEventListener("touchend", () => { if (y0 === null) return; y0 = null; volet.style.transition = ""; volet.style.transform = ""; if (dy > 70) ouvrir(false); dy = 0; });
+  }
   voile.onclick = () => ouvrir(false);
   $("#ff-voir").onclick = () => ouvrir(false);
   $("#ff-effacer").onclick = () => { pastilles.forEach(p => p.setAttribute("aria-pressed", "false")); maj(); };
@@ -3389,7 +3398,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-zz16";
+const WB_BUILD = "2026-11-25-zz17";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
