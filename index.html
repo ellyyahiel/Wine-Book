@@ -638,6 +638,7 @@ input, select, textarea { font-size: 16px !important; } /* évite le zoom automa
 .coul-haut { display: grid; gap: 12px; }
 .coul-haut .intro-couleur { margin: 0; }
 .coul-haut .recherche { margin: 18px 0 0; justify-items: start; }
+.coul-haut .coul-rech { margin-top: 18px; }
 .coul-haut { margin-bottom: -34px; }
 #res-recherche:empty { display: none; }
 .coul-haut .recherche .filtres { justify-self: stretch; }
@@ -2025,7 +2026,7 @@ function pageCouleur(id) {
   return `<nav class="crumb"><a href="#carte">${esc(resto(RESTO).nom)}</a><span>›</span><span>${c.nom}</span></nav>
   <div class="coul-haut"><header class="page-head" style="--c:${cvar(id)}"><span class="bar"></span><p class="eyebrow">La carte · ${c.court}</p><h1>${c.nom}</h1></header>
   <p class="lead intro-couleur">${c.intro} ${c.aSavoir}</p>
-  <div class="recherche" id="recherche">${rechercheHTML(ws)}${filtresHTML(ws)}</div></div>
+  <div class="ff-rang coul-rech">${voletFiltresHTML(ws, groupesCouleur(id))}</div></div>
   <div id="res-recherche"></div>
   <div id="cats-zone"><div class="cats">${stylesDe(id).map((s, i) => { const n = ws.filter(w => w.style === s.id).length; return `<a class="cat ${n ? "" : "vide"}" href="#${id}-${s.id}">${(() => { const ph = ws.filter(w => w.style === s.id && w.photo).slice(0, 3); return `<span class="cat-ph">${ph.map(w => `<i style="background-image:url('${esc(w.photo)}')"></i>`).join("")}</span><span class="cat-v"></span>`; })()}<h3>${s.nom}</h3><p dir="auto"${/[\u0590-\u05FF]/.test(s.accroche) ? ' hidden' : ""}>${s.accroche}${/[\u0590-\u05FF]/.test(s.accroche) ? "" : "."}</p><span class="n">${nb(n)}</span></a>`; }).join("")}</div>
   ${(() => { const nc = ws.filter(w => !style(w.style)); return nc.length ? `<section class="section"><p class="eyebrow">${nb(nc.length)} pas encore classé${nc.length > 1 ? "s" : ""}</p><p class="lead">Ces bouteilles seront rangées dans une catégorie dès que leurs infos seront confirmées.</p><div class="wines">${nc.map(wineRow).join("")}</div></section>` : ""; })()}</div>
@@ -2133,8 +2134,8 @@ const FF_GROUPES = [
   ["elev", "Élevage", w => elevageDe(w).map(x => x === "fut" ? "En fût" : "En cuve")],
   ["verre", "Service", w => auVerre(w) ? ["Servi au verre"] : []]
 ];
-function voletFiltresHTML(ws) {
-  const groupes = FF_GROUPES.map(([k, titre, f]) => {
+function voletFiltresHTML(ws, G = FF_GROUPES) {
+  const groupes = G.map(([k, titre, f]) => {
     const n = {}; ws.forEach(w => f(w).filter(Boolean).forEach(v => { n[v] = (n[v] || 0) + 1; }));
     const vals = Object.keys(n).sort((a, b) => n[b] - n[a] || a.localeCompare(b, "fr"));
     // un groupe n'apparaît que s'il permet vraiment de trier
@@ -2152,24 +2153,38 @@ function voletFiltresHTML(ws) {
   </div>`;
 }
 function initFiltresCategorie(cid, sid) {
+  const ws = carte().filter(w => w.couleur === cid && w.style === sid), mur = $("#ff-mur");
+  initFiltres(ws, FF_GROUPES, (ok, actif) => {
+    const ids = new Set(ok.map(w => w.id));
+    mur.querySelectorAll(".wine").forEach(el => { el.hidden = !ids.has(el.dataset.id); });
+    $("#ff-vide").hidden = ok.length > 0;
+    const cpt = $("#ff-compte"); cpt.hidden = !actif; cpt.textContent = nb(ok.length);
+  });
+}
+const groupesCouleur = cid => [["sty", "Catégorie", w => { const st = stylesDe(cid).find(x => x.id === w.style); return st ? [st.nom] : []; }], ...FF_GROUPES];
+function initFiltresCouleur(cid) {
+  const ws = carte().filter(w => w.couleur === cid), res = $("#res-recherche"), zone = $("#cats-zone");
+  initFiltres(ws, groupesCouleur(cid), (ok, actif) => {
+    zone.hidden = !!actif;
+    res.innerHTML = !actif ? "" : `<p class="eyebrow compte">${nb(ok.length)} trouvé${ok.length > 1 ? "s" : ""}</p>` + (ok.length ? `<div class="wines">${ok.map(wineRow).join("")}</div>` : `<p class="empty">Aucun vin ne correspond. Essayez un autre mot ou retirez un filtre.</p>`);
+  });
+}
+function initFiltres(ws, G, afficher) {
   const q = $("#ff-q"); if (!q) return;
   const btn = $("#ff-btn");
-  const ws = carte().filter(w => w.couleur === cid && w.style === sid);
-  const volet = $("#ff-volet") || document.createElement("div"), voile = $("#ff-voile"), mur = $("#ff-mur");
+  const volet = $("#ff-volet") || document.createElement("div"), voile = $("#ff-voile");
   const pastilles = [...volet.querySelectorAll(".ff-p")];
   const texte = w => sansAccent([w.nom, w.domaine, w.appellation, w.region, w.pays, (w.cepages || []).join(" "), w.assemblage, w.millesime].join(" "));
   const trouve = w => { const t = sansAccent(q.value.trim()); return !t || t.split(/\s+/).every(m => texte(w).includes(m)); };
   const actifs = () => { const a = {}; pastilles.filter(p => p.getAttribute("aria-pressed") === "true").forEach(p => (a[p.dataset.k] = a[p.dataset.k] || []).push(p.dataset.v)); return a; };
-  const garde = (w, a) => FF_GROUPES.every(([k, , f]) => !a[k] || f(w).some(v => a[k].includes(v)));
+  const garde = (w, a) => G.every(([k, , f]) => !a[k] || f(w).some(v => a[k].includes(v)));
   const maj = () => {
     const a = actifs(), nbA = Object.values(a).reduce((s, l) => s + l.length, 0);
-    const ok = ws.filter(w => garde(w, a) && trouve(w)), ids = new Set(ok.map(w => w.id));
-    mur.querySelectorAll(".wine").forEach(el => { el.hidden = !ids.has(el.dataset.id); });
+    const ok = ws.filter(w => garde(w, a) && trouve(w));
+    afficher(ok, nbA || q.value.trim());
     if ($("#ff-n")) $("#ff-n").textContent = "(" + ok.length + ")";
     if ($("#ff-nb")) { $("#ff-nb").hidden = !nbA; $("#ff-nb").textContent = nbA; }
     $("#ff-eff").hidden = !q.value;
-    $("#ff-vide").hidden = ok.length > 0;
-    const cpt = $("#ff-compte"); cpt.hidden = !(nbA || q.value.trim()); cpt.textContent = nb(ok.length);
     // combien de vins chaque pastille donnerait, avec les autres filtres déjà choisis
     pastilles.forEach(p => { const k = p.dataset.k, a2 = { ...a, [k]: [p.dataset.v] }; const n = ws.filter(w => garde(w, a2) && trouve(w)).length; p.querySelector("i").textContent = n; p.classList.toggle("zero", !n && p.getAttribute("aria-pressed") !== "true"); });
   };
@@ -2447,7 +2462,7 @@ function route() {
   }
   { const mc = h.match(/^(blanc|rouge|rose|orange|bulles)-([a-z]+)$/); if (mc) initFiltresCategorie(mc[1], mc[2]); }
   if (h.startsWith("couleur-")) {
-    initRecherche(h.slice(8));
+    initFiltresCouleur(h.slice(8));
     const cid = h.slice(8), versions = { blanc: ["blanc"], rouge: ["rouge"], rose: ["rose"], orange: ["orange"], bulles: ["champagne", "effervescent"] }[cid];
     if (versions && $("#atelier-place")) {
       $("#atelier-place").appendChild($("#atelier"));
@@ -3533,7 +3548,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-zz42";
+const WB_BUILD = "2026-11-25-zz43";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
