@@ -2334,6 +2334,10 @@ function draw() {
     const h = hand("F"), o = M.holding;
     S(o.el, { transform: `translate(${h.x + (o.dx || 0)},${h.y + (o.dy || 0)}) rotate(${o.rot || 0})` });
   }
+  if (M.holding2) {
+    const h = hand("B"), o = M.holding2;
+    S(o.el, { transform: `translate(${h.x + (o.dx || 0)},${h.y + (o.dy || 0)}) rotate(${o.rot || 0})` });
+  }
   // caméra : gros plan qui suit le vigneron
   // caméra collée au vigneron : elle avance quand il avance, s'arrête quand il s'arrête
   CAM = M.x - CAM_W * 0.36;
@@ -2537,14 +2541,14 @@ function renderSteps() {
 function resetScene() {
   tweens = []; paused = false; $("pause").textContent = "Pause";
   const vv = VERSIONS[V], p = P();
-  Object.assign(M, { x: -90, phase: 0, armF: 0, armB: 0, holding: null, bob: 0 });
+  Object.assign(M, { x: -90, phase: 0, armF: 0, armB: 0, holding: null, holding2: null, bob: 0 });
   ["clusters", "basketGrapes", "pressGrapes", "drips", "fermBubbles", "cuveBubbles", "bottleBubbles"].forEach(id => $(id).innerHTML = "");
   clusters = [[205, 282], [250, 288], [295, 280]].map(([x, y], k) => { const c = grapeCluster(6, vv.grape[k % vv.grape.length]); $("clusters").appendChild(c); place(c, x, y); return c; });
   place($("basket"), 160, 470);
   S($("press"), { transform: `translate(${p.press - 470},0)` });
   S($("cuve"), { transform: `translate(${p.cuve},0)` });
   S($("barrel"), { transform: `translate(${BARREL_X - 700},0)`, display: vv.barrel ? "" : "none" });
-  place($("bucket"), p.press + 82, 470);
+  place($("bucket"), ECOULAGE() ? p.cuve + 80 : p.press + 82, 470); window.CUVE_ICI = null;
   S($("bucketJuice"), { y: 0, height: 0, fill: vv.juice });
   setCuve(0, vv.must, 0);
   S($("pressPlate"), { y: 366 }); S($("pressScrew"), { transform: "" });
@@ -2583,10 +2587,10 @@ async function vendanges(texte) {
   M.holding = { el: $("basket"), dx: 0, dy: 40 };
   await armTo(0, 250); ok();
 }
-async function poserPanier() { await armTo(-10, 350); ok(); M.holding = null; place($("basket"), M.x - 40, 470); await armTo(0, 250); ok(); }
+async function poserPanier(dx = -40) { await armTo(-10, 350); ok(); M.holding = null; place($("basket"), M.x + dx, 470); await armTo(0, 250); ok(); }
 async function prendre(el, ecart = 42) {
   const x = posOf(el).x;
-  await walk(x - ecart); ok();
+  await walk(Math.max(M.x, x - ecart)); ok(); // elle n'avance que vers l'avant
   await armTo(-30, 300); ok();
   M.holding = { el, dx: 0, dy: 40, rot: 0 };
   await armTo(0, 250); ok();
@@ -2603,11 +2607,18 @@ async function panierDansCuve() {
   tomb.forEach(c => c.remove());
   await tween(700, p => setCuve(.55 * p)); ok();
   await tween(350, p => { M.holding.rot = 130 * (1 - p); }); ok();
-  await poserPanier();
+  await poserPanier(ECOULAGE() ? 22 : -40);
 }
 async function panierDansPressoir(contenu) {
   const px = P().press;
-  await walk(px - 90); ok();
+  const seau = posOf($("bucket")).x;
+  if (ECOULAGE() && M.holding && seau > M.x && seau < px) { // le seau plein de vin est sur son chemin
+    await walk(seau + 22); ok();
+    await armTo(20, 300, "B"); ok();
+    M.holding2 = { el: $("bucket"), dx: 0, dy: 38, rot: 0 };
+    await armTo(0, 250, "B"); ok();
+  }
+  await walk(Math.max(M.x, px - 90)); ok();
   await armTo(-150, 650); ok();
   await tween(450, p => { M.holding.rot = 130 * p; }); ok();
   $("basketGrapes").innerHTML = "";
@@ -2616,6 +2627,13 @@ async function panierDansPressoir(contenu) {
   await Promise.all(pg.map((g, i) => moveEl(g, { x: 470, y: 300 }, { x: 440 + (i % 3) * 30, y: 412 + Math.floor(i / 3) * 18 }, 450 + i * 60, [0, contenu === "marc" ? 0 : i * 20]))); ok();
   await tween(350, p => { M.holding.rot = 130 * (1 - p); }); ok();
   await poserPanier();
+  if (M.holding2) { // pose le seau sous le bec du pressoir
+    const home = px + 82;
+    await walk(home - 30); ok();
+    await armTo(30, 300, "B"); ok();
+    M.holding2 = null; place($("bucket"), home, 470);
+    await armTo(0, 250, "B"); ok();
+  }
   return pg;
 }
 async function presser(pg, col, h = 26) {
@@ -2636,7 +2654,7 @@ async function presser(pg, col, h = 26) {
   await armTo(0, 350); ok();
 }
 async function verser(tx, ty, ms, pendant) { // le vigneron tient le seau et le vide
-  await walk(tx - 90); ok();
+  await walk(Math.max(M.x, tx - 90)); ok();
   await armTo(-150, 650); ok();
   await tween(380, p => { M.holding.rot = 100 * p; }); ok();
   const h0 = +$("bucketJuice").getAttribute("height") || 26, col = $("bucketJuice").getAttribute("fill");
@@ -2679,31 +2697,23 @@ async function pigeage(ms) {
   M.holding = null; S($("stick"), { opacity: 0 });
   setCuve(undefined, undefined, 1);
 }
-async function ecoulage() { // le vin coule du robinet de la cuve dans le seau, puis le seau va sous le pressoir
-  const l0 = CUVE.level, tapX = P().cuve + 80, home = P().press + 82;
-  const tg = document.createElementNS(NS, "g"); S(tg, { filter: "url(#cut)", opacity: 0 });
-  const txt = window.TR ? TR("Le vin coule du robinet") : "Le vin coule du robinet", w = txt.length * 7.4 + 24;
-  tg.innerHTML = `<rect x="${tapX - 146}" y="${290}" width="${w}" height="30" rx="10" fill="#fffdf6" stroke="#22131a" stroke-width="2"/><path d="M${tapX - 14} 320 L${tapX - 2} 402" fill="none" stroke="#22131a" stroke-width="2" stroke-dasharray="4 3"/><text x="${tapX - 146 + w / 2}" y="${310}" text-anchor="middle" font-family="Figtree, Heebo, sans-serif" font-weight="700" font-size="14" fill="#22131a">${window.WB_LANG === "he" ? "\u200F" + txt + "\u200F" : txt}</text>`;
-  tg.id = "tagRobinet"; // étiquette retirée à la demande de la sommelière
-  await prendre($("bucket"));
-  await walk(tapX - 44); ok();
-  await armTo(-12, 300); ok();
-  M.holding = null; place($("bucket"), tapX, 470);
-  await armTo(0, 250); ok();
-  await walk(tapX + 62); ok(); // elle se recule pour qu'on voie le robinet et le seau
+function cuveDevant() { // une cuve propre, plus loin sur le chemin (à la place du tonneau)
+  window.CUVE_ICI = BARREL_X; S($("cuve"), { transform: `translate(${BARREL_X},0)` }); S($("barrel"), { display: "none" });
+}
+const ECOULAGE = () => V === "rouge" || V === "orange";
+const CUVE_X = () => (window.CUVE_ICI != null ? CUVE_ICI : P().cuve);
+async function ecoulage() { // elle ouvre le robinet : le vin coule dans le seau déjà placé dessous
+  const l0 = CUVE.level, tapX = P().cuve + 80;
+  await armTo(-70, 400); ok();
   S($("tapStream"), { x: tapX - 3, y: 412, fill: CUVE.col }); S($("bucketJuice"), { fill: CUVE.col });
-  await tween(350, p => { S($("tapStream"), { height: (436 - 412) * p }); }); ok();
+  await tween(350, p => S($("tapStream"), { height: (436 - 412) * p })); ok();
   await tween(2600, p => { const hh = 26 * p; S($("bucketJuice"), { y: -hh, height: hh }); setCuve(l0 * (1 - .6 * p)); }, lin); ok();
   await tween(250, p => S($("tapStream"), { height: (436 - 412) * (1 - p) })); ok();
-  await prendre($("bucket"));
-  await walk(home - 44); ok();
-  await armTo(-12, 300); ok();
-  M.holding = null; place($("bucket"), home, 470);
-  await armTo(0, 250); ok();
+  await armTo(0, 300); ok();
 }
 async function viderCuveAuPanier() { // on sort les peaux de la cuve
   await prendre($("basket"), 30);
-  await walk(P().cuve - 90); ok();
+  await walk(Math.max(M.x, P().cuve - 90)); ok();
   await armTo(-150, 600); ok();
   const l0 = CUVE.level;
   await tween(500, p => { M.holding.rot = 60 * p; }); ok();
@@ -2747,7 +2757,7 @@ async function elevageEtSoutirage(enFut) { // finit avec un seau de vin en main
     await remplirAuRobinet(BARREL_X + 100, 396, col);
   } else {
     await say("On le boit jeune !", 1500); ok();
-    await remplirAuRobinet(P().cuve + 80, 412, col, p => setCuve(CUVE.level * (1 - p * .5)));
+    await remplirAuRobinet(CUVE_X() + 80, 412, col, p => setCuve(CUVE.level * (1 - p * .5)));
   }
 }
 async function versBouteille(texte, idx) {
@@ -2787,7 +2797,6 @@ const FILMS = {
     setStep(1, "Étape 2 · Dans la cuve", "Il enlève les tiges, écrase un peu les raisins et met tout dans la cuve : le jus, les peaux et les pépins.");
     await panierDansCuve();
     setStep(2, "Étape 3 · La fermentation avec les peaux", "Les levures transforment le sucre en alcool. Les peaux donnent au vin sa couleur et ses tanins. Elles remontent en « chapeau » : il les enfonce pour bien mélanger.");
-    await walk(P().cuve - 110); ok();
     await say("La fermentation commence !", 1600); ok();
     await Promise.all([levures(), bouillonne(LEV_MS, { to: vv.wine, chap: true })]); ok();
     await Promise.all([pigeage(10400), (async () => { await wait(700); await say("À cause du gaz carbonique rejeté par les levures, les peaux remontent sans cesse à la surface du vin et forment un chapeau compact : le chapeau de marc.", 4700); await say("Je dois alors, pendant toute la fermentation, mélanger régulièrement le vin dans la cuve pour qu'il reste en contact avec les peaux.", 4300); })()]); ok();
@@ -2802,7 +2811,7 @@ const FILMS = {
       "Il le remet dans la cuve propre : un vin fruité et frais, à boire jeune.", 4);
     await prendre($("bucket"));
     if (fut) await verser(BARREL_X, 346, 1500);
-    else { setCuve(0, vv.wine, 0); await verser(P().cuve, 345, 1500, p => setCuve(.5 * p)); }
+    else { cuveDevant(); setCuve(0, vv.wine, 0); await verser(CUVE_X(), 345, 1500, p => setCuve(.5 * p)); }
     await elevageEtSoutirage(fut);
     await versBouteille("Il remplit la bouteille, met le bouchon et colle l'étiquette.", 5);
     await bouchonEtAuRevoir(6);
@@ -2865,7 +2874,6 @@ const FILMS = {
     setStep(1, "Étape 2 · Dans la cuve, avec les peaux", "Il fait comme pour un rouge : les raisins blancs écrasés vont dans la cuve avec leurs peaux.");
     await panierDansCuve();
     setStep(2, "Étape 3 · Fermenter avec les peaux", "Le jus fermente avec les peaux pendant des jours, parfois des mois (en Géorgie, dans de grandes jarres en terre). Les peaux lui donnent sa couleur ambrée et un peu de tanin.");
-    await walk(P().cuve - 110); ok();
     await say("La fermentation commence !", 1600); ok();
     await Promise.all([levures(), bouillonne(LEV_MS, { chap: true })]); ok();
     S($("calendar"), { transform: `translate(${P().cuve + 30},225)` });
@@ -2883,7 +2891,7 @@ const FILMS = {
       "Il le remet en cuve : un vin orange plus vif et fruité.", 4);
     await prendre($("bucket"));
     if (fut) await verser(BARREL_X, 346, 1500);
-    else { setCuve(0, vv.wine, 0); await verser(P().cuve, 345, 1500, p => setCuve(.5 * p)); }
+    else { cuveDevant(); setCuve(0, vv.wine, 0); await verser(CUVE_X(), 345, 1500, p => setCuve(.5 * p)); }
     await elevageEtSoutirage(fut);
     await versBouteille("Il remplit la bouteille, souvent sans filtrer : un léger trouble est normal.", 5);
     await bouchonEtAuRevoir(6);
@@ -3109,7 +3117,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-ze";
+const WB_BUILD = "2026-11-25-zf";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
