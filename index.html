@@ -2411,11 +2411,13 @@ function bubbleSet(text) {
   t.innerHTML = lignes.map((x, k) => `<tspan x="128" dy="${k ? lh : 18}">${x.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</tspan>`).join("");
   return BULLE_ID;
 }
-function bulleEtape(text) { // bulle non bloquante, disparaît seule
-  if (!text) return;
-  const id = bubbleSet(text);
-  tween(250, p => $("bubble").setAttribute("opacity", p)).then(() => wait(2600)).then(() => { if (BULLE_ID === id) tween(250, p => { if (BULLE_ID === id) $("bubble").setAttribute("opacity", 1 - p); }); });
+/* La bulle reste affichée jusqu'à ce qu'une nouvelle phrase la remplace */
+function bubbleShow(text) {
+  bubbleSet(text);
+  const b = $("bubble"), o = +b.getAttribute("opacity") || 0;
+  return o >= 1 ? Promise.resolve() : tween(250, p => b.setAttribute("opacity", o + (1 - o) * p));
 }
+function bulleEtape(text) { if (text) bubbleShow(text); }
 const BULLES_ETAPES = {
   rouge: ["Je cueille les raisins !", "Je mets les raisins dans la cuve, avec leurs peaux.", "Je fais fermenter le jus avec les peaux.", "Après la fermentation, je presse les raisins avec leurs peaux.", null, "Je mets le vin en bouteille.", null],
   blanc: ["Je cueille les raisins !", "Je presse les raisins tout de suite.", "Je verse le jus, sans les peaux, dans la cuve.", "Je fais fermenter le jus.", null, "Je mets le vin en bouteille.", null],
@@ -2431,10 +2433,8 @@ function setStep(i, titre, texte) {
   [...$("steps").children].forEach((li, k) => { li.className = k === i ? "on" : k < i ? "done" : ""; });
 }
 async function say(text, ms = 1600) {
-  bubbleSet(text);
-  await tween(250, p => $("bubble").setAttribute("opacity", p));
-  await wait(ms);
-  await tween(250, p => $("bubble").setAttribute("opacity", 1 - p));
+  await bubbleShow(text);
+  await wait(ms + 250);
 }
 
 /* ---------- Remise à zéro ---------- */
@@ -2600,8 +2600,7 @@ async function viderCuveAuPanier() { // on sort les peaux de la cuve
 }
 async function decision(oui, non, texteOui, texteNon, idx) {
   $("choixOui").textContent = oui; $("choixNon").textContent = non;
-  bubbleSet("Je le fais vieillir ?");
-  await tween(250, p => $("bubble").setAttribute("opacity", p)); ok();
+  await bubbleShow("Je le fais vieillir ?"); ok();
   await armTo(-120, 400, "B"); ok();
   $("choice").classList.add("on");
   const choix = await new Promise(res => {
@@ -2611,7 +2610,7 @@ async function decision(oui, non, texteOui, texteNon, idx) {
     if (SEEKING) { fin(CHOIX_MEMO); return; }
     tween(9000, () => {}).then(() => fin(CHOIX_MEMO));
   }); ok();
-  await tween(250, p => $("bubble").setAttribute("opacity", 1 - p)); ok();
+  await wait(250); ok();
   await armTo(0, 300, "B"); ok();
   setStep(idx, "Étape " + (idx + 1) + " · Vieillir ou pas ?", choix ? texteOui : texteNon);
   return choix;
@@ -2657,10 +2656,9 @@ async function auRevoir(idx) {
   M.holding = { el: $("bottle"), dx: -8, dy: 38, rot: 0 };
   await armTo(-150, 650); ok();
   setStep(idx, `Étape ${idx + 1} · Merci, au revoir !`, "Le vin est prêt à être servi à table.");
-  bubbleSet("Merci, au revoir !");
-  await tween(250, p => $("bubble").setAttribute("opacity", p)); ok();
+  await bubbleShow("Merci, au revoir !"); ok();
   await tween(2200, (p, raw) => { M.armB = -160 + Math.sin(raw * Math.PI * 8) * 22; }, lin); ok();
-  await tween(250, p => $("bubble").setAttribute("opacity", 1 - p)); ok();
+  await wait(250); ok();
   M.armB = 0;
   await walk(WORLD + 120, 4); ok();
   $("capText").textContent = "Fin. Appuyez sur lecture pour revoir l'animation, ou choisissez une autre couleur.";
@@ -2988,7 +2986,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-l";
+const WB_BUILD = "2026-11-25-m";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
