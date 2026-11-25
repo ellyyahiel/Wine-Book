@@ -2440,7 +2440,7 @@ async function bouillonne(ms, opts = {}) { // bulles de fermentation dans la cuv
 }
 
 /* ---------- Bulle « levures » au-dessus de la cuve pendant la fermentation ---------- */
-const LEV_IMG = 8000, LEV_FIN = LEV_IMG - 3900, LEV_MS = 300 + 2 * LEV_IMG + LEV_FIN + 300; // fin raccourcie de 1,5 s (vitesse 2,6)
+const LEV_IMG = 8000, LEV_1 = LEV_IMG - 5200, LEV_2 = LEV_IMG - 5200, LEV_FIN = LEV_IMG - 3900 - 2600, LEV_MS = 300 + LEV_1 + LEV_2 + LEV_FIN + 300; // raccourcis demandés le 25/11 (vitesse 2,6 : 2600 = 1 s)
 const LEV_TXT = [
   "Les levures, présentes sur les peaux ou ajoutées, se mettent à manger le sucre des raisins.",
   "Après avoir mangé le sucre des raisins, elles rejettent de l'alcool et du gaz carbonique.",
@@ -2489,13 +2489,13 @@ async function levures() {
   levTexte(LEV_TXT[0], txt);
   const bo = +$("bubble").getAttribute("opacity") || 0;
   await tween(300, p => { S(G, { opacity: p }); $("bubble").setAttribute("opacity", bo * (1 - p)); }); ok();
-  await tween(LEV_IMG, (p, raw) => {
+  await tween(LEV_1, (p, raw) => {
     lev.forEach((L, i) => { place(L, Math.sin(raw * 18 + i) * 3, Math.sin(raw * 12 + i) * 8); const b = L.g.querySelector(".bouche"); if (b) S(b, { d: Math.sin(raw * 40 + i) > 0 ? "M-6 5 q6 7 12 0 z" : "M-6 6 q6 2 12 0 z" }); });
     sucres.forEach((c, i) => { const L = lev[i], q = Math.min(1, Math.max(0, (raw - .35 - i * .03) / .45)); const sz = 13 * (1 - q); S(c.r, { x: c.x + (L.x - c.x) * q - sz / 2, y: c.y + (L.y + 3 - c.y) * q - sz / 2, width: sz, height: sz, opacity: q < 1 ? 1 : 0 }); });
   }, lin); ok();
   // 2 · alcool + bulles
   levTexte(LEV_TXT[1], txt);
-  await tween(LEV_IMG, (p, raw) => {
+  await tween(LEV_2, (p, raw) => {
     lev.forEach((L, i) => { place(L, Math.sin(raw * 10 + i) * 4, Math.sin(raw * 8 + i) * 12); const b = L.g.querySelector(".bouche"); if (b) S(b, { d: "M-7 4 q7 9 14 0 z" }); });
     bulles.forEach((c, i) => { const q = (raw * 3 + i / 10) % 1; S(c, { cx: 30 + (i * 23) % 200 + Math.sin(q * 6 + i) * 4, cy: 222 - q * 118, opacity: (1 - q) * .95 }); });
     S(G.querySelector("#levVin"), { fill: mix(vv.must || "#5a1838", vv.wine || "#7a1430", raw) });
@@ -3029,7 +3029,7 @@ async function film() {
 $("play").onclick = () => film().catch(() => {});
 /* ---------- Lecteur : play / pause / barre ---------- */
 let T0 = 0, FINI = false, DEMARRE = false, SEEKING = false, GLISSE = false, CHOIX_MEMO = true;
-const DUREES = { rouge: 101250, blanc: 77950, rose: 81650, orange: 95550, effervescent: 69250, champagne: 76350 };
+const DUREES = { rouge: 89250, blanc: 65950, rose: 69650, orange: 83550, effervescent: 57250, champagne: 64350 };
 function dureeV() { return DUREES[V] || 60000; }
 function majBarre() {
   const el = $("seek"); if (!el) return;
@@ -3149,7 +3149,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-zj";
+const WB_BUILD = "2026-11-25-zk";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
