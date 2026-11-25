@@ -580,6 +580,17 @@ input, select, textarea { font-size: 16px !important; } /* évite le zoom automa
 .ff-champ .ff-btn b { position: absolute; top: -3px; right: -3px; font-size: .66rem; padding: 0 5px; line-height: 16px; }
 [dir="rtl"] .ff-champ .ff-btn b { right: auto; left: -3px; }
 .page-cat .ff-compte { margin-top: -2px; }
+
+/* Case Rechercher courte : le mot, puis tout de suite le filtre */
+.ff-champ { width: max-content; max-width: 100%; }
+.ff-champ input { flex: none; width: 9.4ch; }
+[dir="rtl"] .ff-champ input { width: 5.4ch; }
+.ff-champ input:not(:placeholder-shown) { width: 14ch; }
+.recherche .champ { flex: 0 1 auto; }
+.recherche .champ input { flex: none; width: 9.4ch; }
+[dir="rtl"] .recherche .champ input { width: 5.4ch; }
+.recherche .champ input:not(:placeholder-shown) { width: 14ch; }
+@media (max-width: 520px) { .barre-haut .champ { flex: 0 1 auto; } }
 </style>
 <script id="i18n">
 /* ===== Langue : français / hébreu (24/11/2026) ===== */
@@ -3432,7 +3443,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-zz21";
+const WB_BUILD = "2026-11-25-zz22";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
