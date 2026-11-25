@@ -637,7 +637,9 @@ input, select, textarea { font-size: 16px !important; } /* évite le zoom automa
 /* Pages couleur : titre, texte puis barre de recherche, sans grand espace */
 .coul-haut { display: grid; gap: 12px; }
 .coul-haut .intro-couleur { margin: 0; }
-.coul-haut .recherche { margin: 4px 0 0; justify-items: start; }
+.coul-haut .recherche { margin: 18px 0 0; justify-items: start; }
+.coul-haut { margin-bottom: -34px; }
+#res-recherche:empty { display: none; }
 .coul-haut .recherche .filtres { justify-self: stretch; }
 
 .qcarte { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 6px; margin-top: 10px; }
@@ -3531,7 +3533,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-zz41";
+const WB_BUILD = "2026-11-25-zz42";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
