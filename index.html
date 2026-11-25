@@ -2608,14 +2608,14 @@ const ok = () => { if (CUR !== RUN) throw "stop"; };
 async function vendanges(texte) {
   setStep(0, "Étape 1 · Les vendanges", texte);
   await walk(200); ok();
-  await wait(1200); ok();
+  await wait(400); ok();
   for (const c of clusters) {
-    await armTo(-160, 420); ok();
+    await armTo(-160, 220); ok();
     const t = posOf(c), h = hand();
-    await moveEl(c, t, { x: h.x, y: h.y + 20 }, 320); ok();
-    await armTo(-40, 420); ok();
+    await moveEl(c, t, { x: h.x, y: h.y + 20 }, 180); ok();
+    await armTo(-40, 220); ok();
     const b = posOf($("basket"));
-    await moveEl(c, { x: h.x, y: h.y + 20 }, { x: b.x, y: b.y - 30 }, 420, [0, 0], [1, .7]); ok();
+    await moveEl(c, { x: h.x, y: h.y + 20 }, { x: b.x, y: b.y - 30 }, 230, [0, 0], [1, .7]); ok();
     const col = c.querySelector("circle").getAttribute("fill");
     c.remove(); const g = grapeCluster(5, col); $("basketGrapes").appendChild(g); place(g, ($("basketGrapes").children.length - 2) * 14, -38);
   }
@@ -3029,7 +3029,7 @@ async function film() {
 $("play").onclick = () => film().catch(() => {});
 /* ---------- Lecteur : play / pause / barre ---------- */
 let T0 = 0, FINI = false, DEMARRE = false, SEEKING = false, GLISSE = false, CHOIX_MEMO = true;
-const DUREES = { rouge: 89250, blanc: 65950, rose: 69650, orange: 83550, effervescent: 57250, champagne: 64350 };
+const DUREES = { rouge: 86260, blanc: 62960, rose: 66660, orange: 80560, effervescent: 54260, champagne: 61360 };
 function dureeV() { return DUREES[V] || 60000; }
 function majBarre() {
   const el = $("seek"); if (!el) return;
@@ -3149,7 +3149,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-zk";
+const WB_BUILD = "2026-11-25-zl";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
