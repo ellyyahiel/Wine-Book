@@ -2652,7 +2652,7 @@ async function panierDansCuve() {
   await tween(350, p => { M.holding.rot = 130 * (1 - p); }); ok();
   await poserPanier(ECOULAGE() || V === "rose" ? 22 : -40);
 }
-async function panierDansPressoir(contenu) {
+async function panierDansPressoir(contenu, avant) {
   const px = P().press;
   const seau = posOf($("bucket")).x;
   if (ECOULAGE() && M.holding && seau > M.x && seau < px) { // le seau plein de vin est sur son chemin
@@ -2661,6 +2661,7 @@ async function panierDansPressoir(contenu) {
     M.holding2 = { el: $("bucket"), dx: 0, dy: 38, rot: 0 };
     await armTo(0, 250, "B"); ok();
   }
+  if (avant) { let fait = false; const guette = () => { if (fait) return; if (M.x >= px - 200) { fait = true; avant(); } else requestAnimationFrame(guette); }; guette(); }
   await walk(Math.max(M.x, px - 90)); ok();
   await armTo(-150, 650); ok();
   await tween(450, p => { M.holding.rot = 130 * p; }); ok();
@@ -2889,8 +2890,7 @@ const FILMS = {
     await ecoulage();
     bubbleShow("Mais il reste encore du vin dans les peaux, donc je récupère aussi les peaux.");
     await viderCuveAuPanier();
-    const pg = await panierDansPressoir("marc");
-    bubbleShow("Je les presse pour récupérer les dernières gouttes.");
+    const pg = await panierDansPressoir("marc", () => bubbleShow("Je les presse pour récupérer les dernières gouttes."));
     await presser(pg, mix(vv.wine, "#000000", .3));
     await etiquettesSeaux(); ok();
     await bubbleShow("J'ai ici ce qu'on appelle le vin de goutte et le vin de presse."); ok();
@@ -3204,7 +3204,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-zq";
+const WB_BUILD = "2026-11-25-zr";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
