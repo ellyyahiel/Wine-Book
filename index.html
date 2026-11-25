@@ -566,6 +566,20 @@ main, header, nav, footer { max-width: 100vw; overflow-x: clip; }
 input, select, textarea { font-size: 16px !important; } /* évite le zoom automatique de l'iPhone */
 .ff-volet[hidden], .ff-voile[hidden] { display: none !important; }
 .ff-rang { margin-top: 8px; }
+
+.ff-rang { display: block; min-width: 0; }
+.ff-champ { box-sizing: border-box; width: 100%; min-width: 0; display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 5px 4px 14px; cursor: text; }
+[dir="rtl"] .ff-champ { padding: 4px 14px 4px 5px; }
+.ff-champ:focus-within { border-color: var(--gold-soft); }
+.ff-champ > svg { width: 18px; height: 18px; color: var(--faint); flex: none; }
+.ff-champ input { flex: 1; min-width: 0; border: 0; background: none; outline: none; color: var(--ink); font-family: var(--body); padding: 6px 0; -webkit-appearance: none; appearance: none; }
+.ff-champ input::placeholder { color: #c9c1b5; opacity: 1; }
+.ff-champ input::-webkit-search-cancel-button { display: none; }
+.ff-eff { border: 0; background: none; color: var(--muted); font-size: 1.3rem; line-height: 1; padding: 0 6px; cursor: pointer; }
+.ff-champ .ff-btn { margin: 0; padding: 0; width: 38px; height: 38px; border-radius: 50%; justify-content: center; position: relative; flex: none; gap: 0; border: 0; background: var(--surface-2); }
+.ff-champ .ff-btn b { position: absolute; top: -3px; right: -3px; font-size: .66rem; padding: 0 5px; line-height: 16px; }
+[dir="rtl"] .ff-champ .ff-btn b { right: auto; left: -3px; }
+.page-cat .ff-compte { margin-top: -2px; }
 </style>
 <script id="i18n">
 /* ===== Langue : français / hébreu (24/11/2026) ===== */
@@ -2030,7 +2044,7 @@ function pageCategorie(cid, sid) {
   const ws = carte().filter(w => w.couleur === cid && w.style === sid);
   return `<div class="page-cat"><nav class="crumb"><a href="#carte">${esc(resto(RESTO).nom)}</a><span>›</span><a href="#couleur-${cid}">${c.nom}</a><span>›</span><span>${esc(s.court)}</span></nav>
   <header class="page-head" style="--c:${cvar(cid)}"><span class="bar"></span><p class="eyebrow">${c.nom} · ${nb(ws.length)}</p><h1>${esc(s.nom)}</h1></header>
-  ${ws.length ? `<div class="ff-rang">${ws.length > 1 ? voletFiltresHTML(ws) : ""}<p class="eyebrow ff-compte" id="ff-compte" hidden></p></div><div class="wines" id="ff-mur">${ws.map(w => wineRow(w).replace('<a class="wine"', `<a data-id="${w.id}" class="wine"`)).join("")}</div><p class="empty" id="ff-vide" hidden>Aucun vin ne correspond. Retirez un filtre.</p>` : `<p class="empty">Aucun vin de cette catégorie à la carte pour le moment.</p>`}</div>`;
+  ${ws.length ? `<div class="ff-rang">${ws.length > 1 ? voletFiltresHTML(ws) : ""}</div><p class="eyebrow ff-compte" id="ff-compte" hidden></p><div class="wines" id="ff-mur">${ws.map(w => wineRow(w).replace('<a class="wine"', `<a data-id="${w.id}" class="wine"`)).join("")}</div><p class="empty" id="ff-vide" hidden>Aucun vin ne correspond. Retirez un filtre.</p>` : `<p class="empty">Aucun vin de cette catégorie à la carte pour le moment.</p>`}</div>`;
 }
 
 /* ---------- Filtres des pages catégorie : bouton + volet du bas ---------- */
@@ -2057,8 +2071,9 @@ function voletFiltresHTML(ws) {
     if (!vals.length || (vals.length === 1 && n[vals[0]] === ws.length)) return "";
     return `<div class="ff-groupe"><p class="ff-lab">${titre}</p><div class="ff-pastilles">${vals.map(v => `<button type="button" class="ff-p" data-k="${k}" data-v="${esc(v)}" aria-pressed="false"><span>${esc(v)}</span><i>${n[v]}</i></button>`).join("")}</div></div>`;
   }).join("");
-  if (!groupes) return "";
-  return `<button type="button" class="ff-btn" id="ff-btn" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Filtrer</span><b id="ff-nb" hidden></b></button>
+  const champ = `<label class="ff-champ"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><input type="search" id="ff-q" placeholder="Rechercher" autocomplete="off" aria-label="Rechercher un vin"><button type="button" class="ff-eff" id="ff-eff" aria-label="Effacer" hidden>×</button>${groupes ? `<button type="button" class="ff-btn" id="ff-btn" aria-haspopup="dialog" aria-label="Filtres"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><b id="ff-nb" hidden></b></button>` : ""}</label>`;
+  if (!groupes) return champ;
+  return `${champ}
   <div class="ff-voile" id="ff-voile" hidden></div>
   <div class="ff-volet" id="ff-volet" role="dialog" aria-label="Filtres" hidden><div class="ff-poignee"></div>
     <div class="ff-tete"><h2>Filtres</h2><button type="button" class="lien" id="ff-effacer">Tout effacer</button></div>
@@ -2067,25 +2082,33 @@ function voletFiltresHTML(ws) {
   </div>`;
 }
 function initFiltresCategorie(cid, sid) {
-  const btn = $("#ff-btn"); if (!btn) return;
+  const q = $("#ff-q"); if (!q) return;
+  const btn = $("#ff-btn");
   const ws = carte().filter(w => w.couleur === cid && w.style === sid);
-  const volet = $("#ff-volet"), voile = $("#ff-voile"), mur = $("#ff-mur");
+  const volet = $("#ff-volet") || document.createElement("div"), voile = $("#ff-voile"), mur = $("#ff-mur");
   const pastilles = [...volet.querySelectorAll(".ff-p")];
+  const texte = w => sansAccent([w.nom, w.domaine, w.appellation, w.region, w.pays, (w.cepages || []).join(" "), w.assemblage, w.millesime].join(" "));
+  const trouve = w => { const t = sansAccent(q.value.trim()); return !t || t.split(/\s+/).every(m => texte(w).includes(m)); };
   const actifs = () => { const a = {}; pastilles.filter(p => p.getAttribute("aria-pressed") === "true").forEach(p => (a[p.dataset.k] = a[p.dataset.k] || []).push(p.dataset.v)); return a; };
   const garde = (w, a) => FF_GROUPES.every(([k, , f]) => !a[k] || f(w).some(v => a[k].includes(v)));
   const maj = () => {
     const a = actifs(), nbA = Object.values(a).reduce((s, l) => s + l.length, 0);
-    const ok = ws.filter(w => garde(w, a)), ids = new Set(ok.map(w => w.id));
+    const ok = ws.filter(w => garde(w, a) && trouve(w)), ids = new Set(ok.map(w => w.id));
     mur.querySelectorAll(".wine").forEach(el => { el.hidden = !ids.has(el.dataset.id); });
-    $("#ff-n").textContent = "(" + ok.length + ")";
-    $("#ff-nb").hidden = !nbA; $("#ff-nb").textContent = nbA;
+    if ($("#ff-n")) $("#ff-n").textContent = "(" + ok.length + ")";
+    if ($("#ff-nb")) { $("#ff-nb").hidden = !nbA; $("#ff-nb").textContent = nbA; }
+    $("#ff-eff").hidden = !q.value;
     $("#ff-vide").hidden = ok.length > 0;
-    const cpt = $("#ff-compte"); cpt.hidden = !nbA; cpt.textContent = nb(ok.length);
+    const cpt = $("#ff-compte"); cpt.hidden = !(nbA || q.value.trim()); cpt.textContent = nb(ok.length);
     // combien de vins chaque pastille donnerait, avec les autres filtres déjà choisis
-    pastilles.forEach(p => { const k = p.dataset.k, a2 = { ...a, [k]: [p.dataset.v] }; const n = ws.filter(w => garde(w, a2)).length; p.querySelector("i").textContent = n; p.classList.toggle("zero", !n && p.getAttribute("aria-pressed") !== "true"); });
+    pastilles.forEach(p => { const k = p.dataset.k, a2 = { ...a, [k]: [p.dataset.v] }; const n = ws.filter(w => garde(w, a2) && trouve(w)).length; p.querySelector("i").textContent = n; p.classList.toggle("zero", !n && p.getAttribute("aria-pressed") !== "true"); });
   };
   const ouvrir = v => { volet.hidden = !v; voile.hidden = !v; document.body.classList.toggle("ff-ouvert", v); if (v) requestAnimationFrame(() => volet.classList.add("on")); else volet.classList.remove("on"); };
-  btn.onclick = () => ouvrir(true);
+  q.addEventListener("input", maj);
+  q.addEventListener("keydown", e => { if (e.key === "Enter") q.blur(); });
+  $("#ff-eff").onclick = e => { e.preventDefault(); q.value = ""; maj(); };
+  if (!btn) { maj(); return; }
+  btn.onclick = e => { e.preventDefault(); q.blur(); ouvrir(true); };
   // glisser le volet vers le bas = « Voir les vins »
   { let y0 = null, dy = 0; const corps = volet.querySelector(".ff-corps");
     volet.addEventListener("touchstart", e => { if (corps.contains(e.target) && corps.scrollTop > 0) { y0 = null; return; } y0 = e.touches[0].clientY; dy = 0; volet.style.transition = "none"; }, { passive: true });
@@ -3409,7 +3432,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-zz20";
+const WB_BUILD = "2026-11-25-zz21";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
