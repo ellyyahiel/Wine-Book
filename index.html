@@ -2895,7 +2895,7 @@ const FILMS = {
     await presser(pg, mix(vv.wine, "#000000", .3));
     await etiquettesSeaux(); ok();
     await bubbleShow("J'ai ici ce qu'on appelle le vin de goutte et le vin de presse."); ok();
-    await wait(5200); ok();
+    await wait(2600); ok();
     bubbleShow("Je mélange les deux, selon le goût que je veux donner au vin.");
     await melangeSeaux();
     const fut = await decision("En fût de chêne, pour le faire vieillir", "En cuve, pour le garder jeune",
@@ -3085,7 +3085,7 @@ async function film() {
 $("play").onclick = () => film().catch(() => {});
 /* ---------- Lecteur : play / pause / barre ---------- */
 let T0 = 0, FINI = false, DEMARRE = false, SEEKING = false, GLISSE = false, CHOIX_MEMO = true;
-const DUREES = { rouge: 100540, blanc: 64740, rose: 68440, orange: 82340, effervescent: 56040, champagne: 63140 };
+const DUREES = { rouge: 97940, blanc: 64740, rose: 68440, orange: 82340, effervescent: 56040, champagne: 63140 };
 function dureeV() { return DUREES[V] || 60000; }
 function majBarre() {
   const el = $("seek"); if (!el) return;
@@ -3205,7 +3205,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-zu";
+const WB_BUILD = "2026-11-25-zv";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
