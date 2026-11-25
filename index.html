@@ -2482,7 +2482,7 @@ async function levures() {
   const pos = [[46, 138], [100, 132], [158, 140], [212, 132], [44, 192], [100, 198], [160, 188], [214, 198]];
   const lev = pos.map(([x, y]) => { const g = levureSVG(false); obj.appendChild(g); return { g, x, y }; });
   const sucres = pos.map(([x, y], i) => { const r = document.createElementNS(NS, "rect"); S(r, { width: 10, height: 10, rx: 2, fill: "#fff", stroke: "#22131a", "stroke-width": 1.2 }); obj.appendChild(r); return { r, x: x + (i % 2 ? -20 : 20), y: y - 16 }; });
-  const bulles = [...Array(10)].map(() => { const c = document.createElementNS(NS, "circle"); S(c, { r: 4, fill: "none", stroke: "#fff", "stroke-width": 1.8, opacity: 0 }); obj.appendChild(c); return c; });
+  const bulles = [...Array(10)].map(() => { const c = document.createElementNS(NS, "circle"); S(c, { r: 4, cx: 130, cy: 200, fill: "none", stroke: "#fff", "stroke-width": 1.8, opacity: 0 }); obj.appendChild(c); return c; });
   const place = (L, dy = 0, rot = 0) => S(L.g, { transform: `translate(${L.x},${L.y + dy}) rotate(${rot}) scale(1.3)` });
   lev.forEach(L => place(L)); sucres.forEach(c => S(c.r, { x: c.x - 6.5, y: c.y - 6.5, width: 13, height: 13 }));
   // 1 · elles mangent le sucre
@@ -2503,7 +2503,7 @@ async function levures() {
   bulles.forEach(c => S(c, { opacity: 0 }));
   // 3 · elles meurent et tombent au fond
   levTexte(LEV_TXT[2], txt);
-  lev.forEach(L => { const d = levureSVG(true); obj.replaceChild(d, L.g); L.g = d; L.y0 = L.y; L.x0 = L.x; });
+  lev.forEach(L => { const d = levureSVG(true); L.g.getAttribute("transform") && d.setAttribute("transform", L.g.getAttribute("transform")); obj.replaceChild(d, L.g); L.g = d; L.y0 = L.y; L.x0 = L.x; });
   await tween(LEV_FIN, (p, raw) => {
     const q = Math.min(1, raw * 1.5);
     lev.forEach((L, i) => { L.x = L.x0 + ((36 + i * 27) - L.x0) * q; L.y = L.y0 + (214 - L.y0) * q; place(L, 0, (i % 2 ? 1 : -1) * 70 * q); });
@@ -2608,14 +2608,13 @@ const ok = () => { if (CUR !== RUN) throw "stop"; };
 async function vendanges(texte) {
   setStep(0, "Étape 1 · Les vendanges", texte);
   await walk(200); ok();
-  await wait(400); ok();
   for (const c of clusters) {
-    await armTo(-160, 220); ok();
+    await armTo(-160, 180); ok();
     const t = posOf(c), h = hand();
-    await moveEl(c, t, { x: h.x, y: h.y + 20 }, 180); ok();
-    await armTo(-40, 220); ok();
+    await moveEl(c, t, { x: h.x, y: h.y + 20 }, 150); ok();
+    await armTo(-40, 180); ok();
     const b = posOf($("basket"));
-    await moveEl(c, { x: h.x, y: h.y + 20 }, { x: b.x, y: b.y - 30 }, 230, [0, 0], [1, .7]); ok();
+    await moveEl(c, { x: h.x, y: h.y + 20 }, { x: b.x, y: b.y - 30 }, 200, [0, 0], [1, .7]); ok();
     const col = c.querySelector("circle").getAttribute("fill");
     c.remove(); const g = grapeCluster(5, col); $("basketGrapes").appendChild(g); place(g, ($("basketGrapes").children.length - 2) * 14, -38);
   }
@@ -3029,7 +3028,7 @@ async function film() {
 $("play").onclick = () => film().catch(() => {});
 /* ---------- Lecteur : play / pause / barre ---------- */
 let T0 = 0, FINI = false, DEMARRE = false, SEEKING = false, GLISSE = false, CHOIX_MEMO = true;
-const DUREES = { rouge: 86260, blanc: 62960, rose: 66660, orange: 80560, effervescent: 54260, champagne: 61360 };
+const DUREES = { rouge: 85440, blanc: 62140, rose: 65840, orange: 79740, effervescent: 53440, champagne: 60540 };
 function dureeV() { return DUREES[V] || 60000; }
 function majBarre() {
   const el = $("seek"); if (!el) return;
@@ -3149,7 +3148,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-zl";
+const WB_BUILD = "2026-11-25-zm";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
