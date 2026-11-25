@@ -2182,7 +2182,7 @@ function pageVin(id) {
     <div class="facts">${[["Domaine", w.domaine], ["Pays", w.pays], ["Vignoble", vignoble], ["Année", w.millesime], ["Cépage", cep, 1], ["Élevage", ELEV[w.id] || "", 1]].filter(([, x]) => !vide(x)).map(([l, x, lg]) => `<div class="fact${lg ? " large" : ""}"><span>${l}</span><b>${esc(x)}</b></div>`).join("")}
     </div>
     ${vide(w.pitch) && !w.profil ? "" : `<section class="gout"><h3>Le goût</h3>${vide(w.pitch) ? "" : `<p class="gout-phrase">${esc(w.pitch)}</p>`}${w.profil ? echelle("Léger", "Puissant", w.profil.corps) + echelle("Sec", "Doux", w.profil.sucre + 1) : ""}</section>`}
-    ${(() => { const pv = prixPour(w, 0), pb = prixPour(w, 1); const cases = [pv ? `<div><span>Le verre</span><b>${prix(pv)}</b></div>` : "", pb ? `<div><span>La bouteille</span><b>${prix(pb)}</b></div>` : ""].join(""); return cases ? `<div class="prix">${cases}</div>` : ""; })()}
+    ${(() => { const pv = prixPour(w, 0), pb = prixPour(w, 1); const cases = [pv || pb ? `<div><span>Le verre</span><b>${prix(pv || "—")}</b></div>` : "", pb ? `<div><span>La bouteille</span><b>${prix(pb)}</b></div>` : ""].join(""); return cases ? `<div class="prix">${cases}</div>` : ""; })()}
     ${plus || !vide(w.anecdote) || sources.length ? `<details class="plus"><summary>En savoir plus</summary>
       ${vide(w.anecdote) ? "" : `<p class="histoire">${esc(w.anecdote)}</p>`}
       ${plus ? `<dl class="taste">${plus}</dl>` : ""}
@@ -3463,7 +3463,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-zz26";
+const WB_BUILD = "2026-11-25-zz27";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
