@@ -2368,7 +2368,11 @@ function route() {
   if (html === null) { html = PAGES.accueil(); page = "accueil"; }
   document.body.dataset.page = page;
   $("#app").innerHTML = (page === "accueil" ? "" : `<button class="retour" id="retour" aria-label="Revenir à la page précédente" title="Retour"><span aria-hidden="true">←</span></button>`) + html;
-  const rb = $("#retour"); if (rb) rb.onclick = () => { if (NAV_PROF > 0) history.back(); else location.hash = parentDe(h); };
+  const rb = $("#retour"); if (rb) rb.onclick = () => {
+    // pendant un quiz (ou sur le score) : retour au choix du niveau
+    if (h === "quiz" && QZ.phase !== "start") { QZ = { phase: "start", list: [], i: 0, rep: [], saved: null }; renderQuiz(); window.scrollTo({ top: 0 }); return; }
+    if (NAV_PROF > 0) history.back(); else location.hash = parentDe(h);
+  };
   renderNav(h);
   document.querySelectorAll("button[data-r]").forEach(b => b.onclick = () => { RESTO = b.dataset.r; store.set("vin_resto", RESTO); location.hash = "carte"; });
   if (h === "fabrication") {
@@ -3465,7 +3469,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-zz30";
+const WB_BUILD = "2026-11-25-zz31";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
