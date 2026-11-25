@@ -2445,7 +2445,7 @@ async function bouillonne(ms, opts = {}) { // bulles de fermentation dans la cuv
 }
 
 /* ---------- Bulle « levures » au-dessus de la cuve pendant la fermentation ---------- */
-const LEV_IMG = 8000, LEV_1 = LEV_IMG - 5200, LEV_2 = LEV_IMG - 5200, LEV_FIN = LEV_IMG - 3900 - 2600, LEV_MS = 300 + LEV_1 + LEV_2 + LEV_FIN + 300; // raccourcis demandés le 25/11 (vitesse 2,6 : 2600 = 1 s)
+const LEV_IMG = 8000, LEV_1 = LEV_IMG - 5200, LEV_2 = LEV_IMG - 5200, LEV_FIN = LEV_IMG - 3900 - 2600 + 2600, LEV_MS = 300 + LEV_1 + LEV_2 + LEV_FIN + 300; // raccourcis demandés le 25/11 (vitesse 2,6 : 2600 = 1 s)
 const LEV_TXT = [
   "Les levures, présentes sur les peaux ou ajoutées, se mettent à manger le sucre des raisins.",
   "Après avoir mangé le sucre des raisins, elles rejettent de l'alcool et du gaz carbonique.",
@@ -3085,7 +3085,7 @@ async function film() {
 $("play").onclick = () => film().catch(() => {});
 /* ---------- Lecteur : play / pause / barre ---------- */
 let T0 = 0, FINI = false, DEMARRE = false, SEEKING = false, GLISSE = false, CHOIX_MEMO = true;
-const DUREES = { rouge: 97940, blanc: 62140, rose: 65840, orange: 79740, effervescent: 53440, champagne: 60540 };
+const DUREES = { rouge: 100540, blanc: 64740, rose: 68440, orange: 82340, effervescent: 56040, champagne: 63140 };
 function dureeV() { return DUREES[V] || 60000; }
 function majBarre() {
   const el = $("seek"); if (!el) return;
@@ -3205,7 +3205,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-zt";
+const WB_BUILD = "2026-11-25-zu";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
