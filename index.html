@@ -596,6 +596,27 @@ input, select, textarea { font-size: 16px !important; } /* évite le zoom automa
 .ff-groupe { margin: 0; padding: 12px 0 14px; border-top: 1px solid #d9cfbf; }
 .ff-groupe:first-child { border-top: 0; padding-top: 4px; }
 .ff-lab { font-family: var(--display); font-weight: 600; font-size: 1.05rem; letter-spacing: 0; text-transform: none; color: var(--ink); margin: 0 0 9px; }
+
+/* Page couleur : panneaux photo par catégorie (maquette 2, sans rouge) */
+.cats { display: grid; grid-template-columns: 1fr; gap: 12px; background: none; border: 0; border-radius: 0; overflow: visible; }
+.cats .cat { position: relative; overflow: hidden; border-radius: 18px; min-height: 176px; padding: 16px 44px 14px 16px; display: flex; flex-direction: column; justify-content: flex-end; gap: 4px; background: #3d352e; color: #fff; box-shadow: 0 6px 18px rgba(42, 37, 32, .12); }
+.cats .cat:hover { background: #3d352e; }
+.cats .cat .cat-ph { position: absolute; inset: 0; display: flex; gap: 2px; }
+.cats .cat .cat-ph i { flex: 1; background-size: cover; background-position: center 30%; }
+.cats .cat .cat-v { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(28, 24, 20, .9) 0%, rgba(28, 24, 20, .45) 45%, rgba(28, 24, 20, .05) 100%); }
+.cats .cat h3, .cats .cat p, .cats .cat .n { position: relative; }
+.cats .cat h3 { color: #fff; font-size: 1.55rem; line-height: 1.15; margin: 0; }
+.cats .cat p { color: rgba(255, 255, 255, .8); }
+.cats .cat .n { color: rgba(255, 255, 255, .78); }
+.cats .cat::after { content: "›"; position: absolute; right: 16px; bottom: 14px; color: #fff; font-size: 1.5rem; line-height: 1; }
+[dir="rtl"] .cats .cat { padding: 16px 16px 14px 44px; }
+[dir="rtl"] .cats .cat::after { content: "‹"; right: auto; left: 16px; }
+.cats .cat.vide { min-height: 96px; background: #d9d0c3; box-shadow: none; }
+.cats .cat.vide .cat-v { display: none; }
+.cats .cat.vide h3 { color: var(--ink); }
+.cats .cat.vide .n { color: var(--muted); }
+.cats .cat.vide::after { color: var(--muted); }
+@media (min-width: 760px) { .cats { grid-template-columns: repeat(2, 1fr); } }
 </style>
 <script id="i18n">
 /* ===== Langue : français / hébreu (24/11/2026) ===== */
@@ -1973,7 +1994,7 @@ function pageCouleur(id) {
   return `<div class="recherche" id="recherche"><div class="barre-haut"><nav class="crumb"><a href="#carte">${esc(resto(RESTO).nom)}</a><span>›</span><span>${c.nom}</span></nav>${rechercheHTML(ws)}</div>${filtresHTML(ws)}</div>
   <header class="page-head" style="--c:${cvar(id)}"><span class="bar"></span><p class="eyebrow">La carte · ${c.court}</p><h1>${c.nom}</h1></header>
   <div id="res-recherche"></div>
-  <div id="cats-zone"><p class="lead intro-couleur">${c.intro} ${c.aSavoir}</p><div class="cats">${stylesDe(id).map((s, i) => { const n = ws.filter(w => w.style === s.id).length; return `<a class="cat ${n ? "" : "vide"}" href="#${id}-${s.id}"><h3>${s.nom}</h3><p dir="auto"${/[\u0590-\u05FF]/.test(s.accroche) ? ' hidden' : ""}>${s.accroche}${/[\u0590-\u05FF]/.test(s.accroche) ? "" : "."}</p><span class="n">${nb(n)}</span></a>`; }).join("")}</div>
+  <div id="cats-zone"><p class="lead intro-couleur">${c.intro} ${c.aSavoir}</p><div class="cats">${stylesDe(id).map((s, i) => { const n = ws.filter(w => w.style === s.id).length; return `<a class="cat ${n ? "" : "vide"}" href="#${id}-${s.id}">${(() => { const ph = ws.filter(w => w.style === s.id && w.photo).slice(0, 3); return `<span class="cat-ph">${ph.map(w => `<i style="background-image:url('${esc(w.photo)}')"></i>`).join("")}</span><span class="cat-v"></span>`; })()}<h3>${s.nom}</h3><p dir="auto"${/[\u0590-\u05FF]/.test(s.accroche) ? ' hidden' : ""}>${s.accroche}${/[\u0590-\u05FF]/.test(s.accroche) ? "" : "."}</p><span class="n">${nb(n)}</span></a>`; }).join("")}</div>
   ${(() => { const nc = ws.filter(w => !style(w.style)); return nc.length ? `<section class="section"><p class="eyebrow">${nb(nc.length)} pas encore classé${nc.length > 1 ? "s" : ""}</p><p class="lead">Ces bouteilles seront rangées dans une catégorie dès que leurs infos seront confirmées.</p><div class="wines">${nc.map(wineRow).join("")}</div></section>` : ""; })()}</div>
   <section class="section fab-couleur"><p class="eyebrow">Fabrication</p><h2>Comment on fait ${({ blanc: "le vin blanc", rouge: "le vin rouge", rose: "le rosé", orange: "le vin orange", bulles: "les bulles" })[id] || "le vin"}</h2><div id="atelier-place"></div></section>`;
 }
@@ -3442,7 +3463,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-zz25";
+const WB_BUILD = "2026-11-25-zz26";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
