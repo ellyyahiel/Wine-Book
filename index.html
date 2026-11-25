@@ -629,6 +629,10 @@ input, select, textarea { font-size: 16px !important; } /* évite le zoom automa
 .qleg { font-size: .8rem; color: var(--muted); text-align: center; margin-top: 6px; line-height: 1.4; }
 .qvideo { display: flex; justify-content: center; }
 .qvideo iframe { width: min(100%, 260px); aspect-ratio: 9 / 16; border: 0; border-radius: 14px; background: #000; }
+
+/* Quiz : après la réponse, on ne garde que la bonne réponse (et la mienne si elle est fausse) pour que l'explication tienne dans l'écran */
+.answers.repondu .answer.autre { display: none; }
+.qcard .explain { margin-top: 10px; }
 </style>
 <script id="i18n">
 /* ===== Langue : français / hébreu (24/11/2026) ===== */
@@ -2310,13 +2314,13 @@ function renderQuiz() {
     const q = QZ.list[QZ.i], r = QZ.rep[QZ.i];
     box.innerHTML = `<div class="progress" aria-label="Progression">${QZ.list.map((_, k) => `<i class="${k < QZ.rep.length ? (QZ.rep[k].ok ? "ok" : "ko") : k === QZ.i ? "cur" : ""}"></i>`).join("")}</div>
       <div class="qcard"><p class="eyebrow">Question ${QZ.i + 1} sur ${QZ.list.length} · ${esc(q.theme)}</p><h2>${qTitre(q)}</h2>${q.qc ? vinTag(q) : ""}${q.media ? mediaQuiz(q.media) : ""}
-      <div class="answers">${q.options.map((o, k) => {
-        let cls = ""; if (r) { if (o === q.a) cls = "good"; else if (o === r.choix) cls = "bad"; }
+      <div class="answers${r ? " repondu" : ""}">${q.options.map((o, k) => {
+        let cls = ""; if (r) { if (o === q.a) cls = "good"; else if (o === r.choix) cls = "bad"; else cls = "autre"; }
         return `<button class="answer ${cls}" data-o="${k}" ${r ? "disabled" : ""}><span class="k">${(WB_LANG === "he" ? "אבגד" : "abcd")[k]}.</span><span>${esc(o)}</span></button>`;
       }).join("")}</div>
       ${r ? `<div class="explain"><b class="${r.ok ? "ok" : "ko"}">${r.ok ? "Bonne réponse." : "Pas tout à fait."}</b>${r.ok ? "" : `<span>La bonne réponse : <b>${esc(q.a)}</b></span>`}<span style="color:var(--muted)">${esc(q.x)}</span></div>
       <div class="row"><button class="btn" id="suiv">${QZ.i === QZ.list.length - 1 ? "Voir mon score" : "Question suivante"}</button></div>` : ""}</div>`;
-    box.querySelectorAll(".answer").forEach(b => b.onclick = () => { const choix = q.options[+b.dataset.o]; QZ.rep[QZ.i] = { choix, ok: choix === q.a }; renderQuiz(); $("#suiv")?.focus(); });
+    box.querySelectorAll(".answer").forEach(b => b.onclick = () => { const choix = q.options[+b.dataset.o]; QZ.rep[QZ.i] = { choix, ok: choix === q.a }; renderQuiz(); const sv = $("#suiv"); if (sv) { sv.focus({ preventScroll: true }); const r2 = sv.getBoundingClientRect(); if (r2.bottom > innerHeight - 90) window.scrollBy({ top: r2.bottom - innerHeight + 100, behavior: "smooth" }); } });
     const s = $("#suiv"); if (s) s.onclick = () => { if (QZ.i === QZ.list.length - 1) { QZ.phase = "end"; renderQuiz(); enregistrer(); } else { QZ.i++; renderQuiz(); } window.scrollTo({ top: 0 }); };
     return;
   }
@@ -3501,7 +3505,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-zz36";
+const WB_BUILD = "2026-11-25-zz37";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
