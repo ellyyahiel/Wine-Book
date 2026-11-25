@@ -599,14 +599,16 @@ body[data-page="accueil"] .top .brand, body[data-page="accueil"] .top .nav, body
         <clipPath id="bucketclip"><path d="M-22,-34 L22,-34 L18,0 L-18,0 Z"/></clipPath>
       </defs>
       <!-- Décor -->
-      <rect width="1500" height="560" fill="url(#sky)"/>
+      <rect x="-800" width="3200" height="560" fill="url(#sky)"/>
+      <rect x="-800" y="360" width="800" height="200" fill="#a9c97f"/><rect x="-800" y="400" width="800" height="160" fill="#8fb766"/>
+      <rect x="1499" y="330" width="1000" height="230" fill="#a9c97f"/><rect x="1499" y="375" width="1000" height="185" fill="#8fb766"/>
       <circle id="sun" cx="520" cy="175" r="30" fill="#f6cf5a"/>
       <g transform="scale(1.5,1)"><path d="M0,360 C150,300 300,330 420,320 C560,305 700,290 1000,330 L1000,560 L0,560 Z" fill="#a9c97f"/>
       <path d="M0,400 C200,370 420,390 600,380 C780,370 900,385 1000,375 L1000,560 L0,560 Z" fill="#8fb766"/>
 </g>
-      <rect x="0" y="470" width="1500" height="90" fill="#b98f5e"/>
-      <rect x="0" y="470" width="1500" height="6" fill="#9b7346"/>
-      <rect width="1500" height="560" filter="url(#paper)" opacity=".55" pointer-events="none"/>
+      <rect x="-800" y="470" width="3200" height="90" fill="#b98f5e"/>
+      <rect x="-800" y="470" width="3200" height="6" fill="#9b7346"/>
+      <rect x="-800" width="3200" height="560" filter="url(#paper)" opacity=".55" pointer-events="none"/>
 
       <!-- Vigne -->
       <g id="vine" filter="url(#cut)">
@@ -2325,8 +2327,8 @@ function draw() {
     S(o.el, { transform: `translate(${h.x + (o.dx || 0)},${h.y + (o.dy || 0)}) rotate(${o.rot || 0})` });
   }
   // caméra : gros plan qui suit le vigneron
-  const cible = Math.max(0, Math.min(WORLD - CAM_W, M.x - CAM_W * 0.36));
-  CAM = CAM_SNAP ? cible : CAM + (cible - CAM) * 0.07;
+  // caméra collée au vigneron : elle avance quand il avance, s'arrête quand il s'arrête
+  CAM = M.x - CAM_W * 0.36;
   CAM_SNAP = false;
   S($("scene"), { viewBox: `${CAM.toFixed(1)} ${CAM_Y} ${CAM_W} ${CAM_H}` });
   S($("sun"), { cx: CAM + 520, cy: 175 });
@@ -3068,7 +3070,7 @@ window.VIGNERON_STOP = () => { paused = true; };
 </script>
 <script>
 /* Mise à jour automatique : si une version plus récente est en ligne, on recharge. */
-const WB_BUILD = "2026-11-25-w";
+const WB_BUILD = "2026-11-25-x";
 (function(){
   function verifier(){
     fetch(location.pathname + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
